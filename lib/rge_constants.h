@@ -58,7 +58,7 @@ typedef struct {
 /** Variable array data. */
 #define RGE_VARS_SIZE 38
 extern const char *RGE_VARS[RGE_VARS_SIZE];
-#define RGE_MC_VARS_SIZE 20
+#define RGE_MC_VARS_SIZE 34
 extern const char *RGE_MC_VARS[RGE_MC_VARS_SIZE];
 
 /** Metadata variables. */
@@ -117,23 +117,40 @@ const RGE_VAR RGE_THETAPQ = {.addr = 37, .name = "theta_PQ"}; // Unit: rad
 /** MC variables */
 const RGE_VAR RGE_MC_RUNNO   = {.addr = 0, .name = "run_num"};
 const RGE_VAR RGE_MC_EVENTNO = {.addr = 1, .name = "event_num"};
-const RGE_VAR RGE_MC_PID = {.addr = 2, .name = "MC_pid"};
-const RGE_VAR RGE_MC_PX  = {.addr = 3, .name = "MC_px"};
-const RGE_VAR RGE_MC_PY  = {.addr = 4, .name = "MC_py"};
-const RGE_VAR RGE_MC_PZ  = {.addr = 5, .name = "MC_pz"};
-const RGE_VAR RGE_MC_VX  = {.addr = 6, .name = "MC_vx"};
-const RGE_VAR RGE_MC_VY  = {.addr = 7, .name = "MC_vy"};
-const RGE_VAR RGE_MC_VZ  = {.addr = 8, .name = "MC_vz"};
-const RGE_VAR RGE_MC_VT  = {.addr = 9, .name = "MC_vt"};
-const RGE_VAR RGE_MC_NPART = {.addr = 10, .name = "MC_vt"};
-const RGE_VAR RGE_MC_ATARGET = {.addr = 11, .name = "MC_atarget"};
-const RGE_VAR RGE_MC_ZTARGET = {.addr = 12, .name = "MC_ztarget"};
-const RGE_VAR RGE_MC_PTARGET = {.addr = 13, .name = "MC_ptarget"};
-const RGE_VAR RGE_MC_PBEAM = {.addr = 14, .name = "MC_pbeam"};
-const RGE_VAR RGE_MC_BTYPE = {.addr = 15, .name = "MC_btype"};
-const RGE_VAR RGE_MC_EBEAM = {.addr = 16, .name = "MC_ebeam"};
-const RGE_VAR RGE_MC_TARGETID = {.addr = 17, .name = "MC_targetid"};
-const RGE_VAR RGE_MC_PROCESSID = {.addr = 18, .name = "MC_processid"};
-const RGE_VAR RGE_MC_WEIGHT = {.addr = 19, .name = "MC_weight"};
+const RGE_VAR RGE_MC_PID = {.addr = 2, .name = "pid"};
+const RGE_VAR RGE_MC_PX  = {.addr = 3, .name = "px"};
+const RGE_VAR RGE_MC_PY  = {.addr = 4, .name = "py"};
+const RGE_VAR RGE_MC_PZ  = {.addr = 5, .name = "pz"};
+const RGE_VAR RGE_MC_VX  = {.addr = 6, .name = "vx"};
+const RGE_VAR RGE_MC_VY  = {.addr = 7, .name = "vy"};
+const RGE_VAR RGE_MC_VZ  = {.addr = 8, .name = "vz"};
+const RGE_VAR RGE_MC_VT  = {.addr = 9, .name = "vt"};
+const RGE_VAR RGE_MC_NPART = {.addr = 10, .name = "vt"};
+const RGE_VAR RGE_MC_ATARGET = {.addr = 11, .name = "atarget"};
+const RGE_VAR RGE_MC_ZTARGET = {.addr = 12, .name = "ztarget"};
+const RGE_VAR RGE_MC_PTARGET = {.addr = 13, .name = "ptarget"};
+const RGE_VAR RGE_MC_PBEAM = {.addr = 14, .name = "pbeam"};
+const RGE_VAR RGE_MC_BTYPE = {.addr = 15, .name = "btype"};
+const RGE_VAR RGE_MC_EBEAM = {.addr = 16, .name = "ebeam"};
+const RGE_VAR RGE_MC_TARGETID = {.addr = 17, .name = "targetid"};
+const RGE_VAR RGE_MC_PROCESSID = {.addr = 18, .name = "processid"};
+const RGE_VAR RGE_MC_WEIGHT = {.addr = 19, .name = "weight"};
+/** MC CALCULATED variables */
+const RGE_VAR RGE_MC_P      = {.addr = 20, .name = "p"}; // Unit: GeV
+const RGE_VAR RGE_MC_THETA  = {.addr = 21, .name = "theta"}; // Unit: rad
+const RGE_VAR RGE_MC_PHI    = {.addr = 22, .name = "phi"};  // Unit: rad
+const RGE_VAR RGE_MC_BETA   = {.addr = 23, .name = "beta"};
+/** DIS_MC variables. */
+const RGE_VAR RGE_MC_Q2 = {.addr = 24, .name = "Q2"}; // Unit: GeV^2
+const RGE_VAR RGE_MC_NU = {.addr = 25, .name = "nu"}; // Unit: GeV
+const RGE_VAR RGE_MC_XB = {.addr = 26, .name = "x_bjorken"};
+const RGE_VAR RGE_MC_YB = {.addr = 27, .name = "y_bjorken"};
+const RGE_VAR RGE_MC_W2 = {.addr = 28, .name = "W2"}; // Unit: GeV
+/** SIDIS_MC variables. */
+const RGE_VAR RGE_MC_ZH      = {.addr = 29, .name = "z_h"};
+const RGE_VAR RGE_MC_PT2     = {.addr = 30, .name = "p_T2"}; // Unit: GeV^2
+const RGE_VAR RGE_MC_PL2     = {.addr = 31, .name = "p_L2"}; // Unit: GeV^2
+const RGE_VAR RGE_MC_PHIPQ   = {.addr = 32, .name = "phi_PQ"}; // Unit: rad
+const RGE_VAR RGE_MC_THETAPQ = {.addr = 33, .name = "theta_PQ"}; // Unit: rad
 
 #endif

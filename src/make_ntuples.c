@@ -468,6 +468,22 @@ static int run(
                 arr[RGE_MC_TARGETID.addr] = static_cast<Float_t>(targetid);
                 arr[RGE_MC_PROCESSID.addr] = static_cast<Float_t>(processid);
                 arr[RGE_MC_WEIGHT.addr] = weight;
+                arr[RGE_MC_P.addr] = 1;
+                arr[RGE_MC_THETA.addr] = 2;
+                arr[RGE_MC_PHI.addr] = 3;
+                arr[RGE_MC_BETA.addr] = 4;
+                arr[RGE_MC_Q2.addr] = 5;
+                arr[RGE_MC_NU.addr] = 6;
+                arr[RGE_MC_XB.addr] = 7;
+                arr[RGE_MC_YB.addr] = 8;
+                arr[RGE_MC_W2.addr] = 9;
+                arr[RGE_MC_ZH.addr] = 10;
+                arr[RGE_MC_PT2.addr] = 11;
+                arr[RGE_MC_PL2.addr] = 12;
+                arr[RGE_MC_PHIPQ.addr] = 13;
+                arr[RGE_MC_THETAPQ.addr] = 14;
+
+
                 MC_tree_out->Fill(arr);
             }
         }

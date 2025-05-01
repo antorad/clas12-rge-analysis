@@ -50,5 +50,12 @@ const char *RGE_MC_VARS[RGE_MC_VARS_SIZE] = {
         RGE_MC_EBEAM.name,
         RGE_MC_TARGETID.name,
         RGE_MC_PROCESSID.name,
-        RGE_MC_WEIGHT.name
+        RGE_MC_WEIGHT.name,
+        RGE_P.name,
+        RGE_THETA.name,
+        RGE_PHI.name,
+        RGE_BETA.name,
+        RGE_MC_Q2.name, RGE_MC_NU.name, RGE_MC_XB.name, RGE_MC_YB.name, RGE_MC_W2.name,
+        RGE_MC_ZH.name, RGE_MC_PT2.name, RGE_MC_PL2.name, RGE_MC_PHIPQ.name,
+                RGE_MC_THETAPQ.name
 };
