@@ -261,6 +261,7 @@ int rge_set_pid(
         recon_pid = assign_neutral_pid(total_energy, particle->beta);
     }
 
+/*
     // Create PID list.
     uint hypotheses_size = 0;
     rge_get_pidlist_size_by_charge(particle->charge, &hypotheses_size);
@@ -283,6 +284,10 @@ int rge_set_pid(
                 e_check, htcc_signal_check, htcc_pion_threshold
         )) return 1;
     }
+*/
+    //set pid comming from reconstruction
+    particle->pid = recon_pid;
+
     // Check if particle is trigger electron and define mass from PID.
     particle->is_trigger = (particle->pid == 11 && status < 0);
     if (rge_get_mass(particle->pid, &(particle->mass))) return 1;
