@@ -192,7 +192,10 @@ static double Pl2(rge_particle p, rge_particle e, double bE);
  */
 static double zh(rge_particle p, rge_particle e, double bE);
 
-//beta for mc particles
+/**
+ * Compute beta for the MC particle. In case the aprticle is not
+ *     found in the PID_MAP. It gives beta=-1.
+ */
 static double beta(rge_particle p);
 
 // --+ library +----------------------------------------------------------------
@@ -246,13 +249,19 @@ int rge_fill_ntuples_arr(
         int nphe_htcc
 );
 
-
-//for MC particles
+/**
+ * Initialize a new MC particle using data from the input parameters. Particle is
+ *     declared as valid.
+ */
 rge_particle mc_particle_init(
         int pid, double vx, double vy, double vz,
         double px, double py, double pz
 );
-//Fill mc array
+
+/**
+ * Fill MC array to be stored in ntuples_%06d.root file. Array is of constant size
+ *     RGE_MC_VARS_SIZE, and the order of variables can be seen in constants.h.
+ */
 int mc_rge_fill_ntuples_arr(
         Float_t *arr, rge_particle p, rge_particle e, int run_no, int evn, double vt,
         int npart, int atarget, int ztarget, double ptarget, double pbeam, int btype, 
