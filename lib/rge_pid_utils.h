@@ -112,4 +112,7 @@ int rge_get_pidlist_by_charge(int charge, int pidlist[]);
 /** Print all PIDs in PID_MAP and their corresponding names to stdout. */
 int rge_print_pid_names();
 
+//get mass from mc particles and return if they are not in the map
+double rge_get_mc_mass(int pid);
+
 #endif

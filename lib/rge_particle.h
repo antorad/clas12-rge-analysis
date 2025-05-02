@@ -192,6 +192,9 @@ static double Pl2(rge_particle p, rge_particle e, double bE);
  */
 static double zh(rge_particle p, rge_particle e, double bE);
 
+//beta for mc particles
+static double beta(rge_particle p);
+
 // --+ library +----------------------------------------------------------------
 /**
   * Initialize a new particle from the REC::Particle, REC::TRACK, and

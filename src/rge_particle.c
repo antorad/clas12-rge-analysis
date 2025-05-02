@@ -205,6 +205,13 @@ double zh(rge_particle p, rge_particle e, double bE) {
     return sqrt(p.mass*p.mass + pow(momentum(p), 2)) / nu(e,bE);
 }
 
+double beta(rge_particle p) {
+    double mass = rge_get_mc_mass(p.pid);
+    if (mass==-1) return -1;
+    double p_p = momentum(p);
+    return p_p/(sqrt(p_p*p_p + mass*mass));
+}
+
 // --+ library +----------------------------------------------------------------
 rge_particle rge_particle_init(
         rge_hipobank *particle, rge_hipobank *track, rge_hipobank *fmttrack,
@@ -379,12 +386,6 @@ rge_particle mc_particle_init(
     else p.is_hadron  = false;
 
     p.pid    = pid;
-
-    //double mass     = 0;
-    //rge_get_mass(pid, &mass);
-    //p.beta   = sqrt(px*px+py*py+pz*pz)/sqrt(px*px+py*py+pz*pz+mass*mass);
-    //p.beta = 1;
-
     p.vx = vx;
     p.vy = vy;
     p.vz = vz;
@@ -424,7 +425,7 @@ int mc_rge_fill_ntuples_arr(
     arr[RGE_MC_P.addr] = momentum(p);
     arr[RGE_MC_THETA.addr] = theta_lab(p);
     arr[RGE_MC_PHI.addr] = phi_lab(p);
-    arr[RGE_MC_BETA.addr] = 99;
+    arr[RGE_MC_BETA.addr] = beta(p);
     arr[RGE_MC_Q2.addr] = Q2(e, ebeam);
     arr[RGE_MC_NU.addr] = nu(e, ebeam);
     arr[RGE_MC_XB.addr] = Xb(e, ebeam);

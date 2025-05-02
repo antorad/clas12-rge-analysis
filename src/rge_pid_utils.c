@@ -101,3 +101,12 @@ int rge_print_pid_names() {
 
     return 0;
 }
+
+double rge_get_mc_mass(int pid) {
+    auto it = PID_MAP.find(pid);
+    if (it != PID_MAP.end()) {
+        return it->second.mass;
+    } else {
+        return -1;
+    }
+}
