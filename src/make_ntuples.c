@@ -436,6 +436,8 @@ static int run(
             int targetid   = rge_get_double(&bmcevent, "targetid", 0);
             int processid  = rge_get_double(&bmcevent, "processid", 0);
             double weight  = rge_get_double(&bmcevent, "weight", 0);
+
+            bool trigger_exist  = false;
             for (uint pos = 0; pos < bmcpart.nrows; ++pos)
             {
                 Float_t arr[RGE_MC_VARS_SIZE];
@@ -448,43 +450,20 @@ static int run(
                 double vz  = rge_get_double(&bmcpart, "vz",  pos);
                 double vt  = rge_get_double(&bmcpart, "vt",  pos);
                 
-                arr[RGE_MC_RUNNO.addr] = static_cast<Float_t>(run_no);
-                arr[RGE_MC_EVENTNO.addr] = static_cast<Float_t>(event);
-                arr[RGE_MC_PID.addr] = static_cast<Float_t>(pid);
-                arr[RGE_MC_PX.addr] = px;
-                arr[RGE_MC_PY.addr] = py;
-                arr[RGE_MC_PZ.addr] = pz;
-                arr[RGE_MC_VX.addr] = vx;
-                arr[RGE_MC_VY.addr] = vy;
-                arr[RGE_MC_VZ.addr] = vz;
-                arr[RGE_MC_VT.addr] = vt;
-                arr[RGE_MC_NPART.addr] = static_cast<Float_t>(npart);
-                arr[RGE_MC_ATARGET.addr] = static_cast<Float_t>(atarget);
-                arr[RGE_MC_ZTARGET.addr] = static_cast<Float_t>(ztarget);
-                arr[RGE_MC_PTARGET.addr] = ptarget;
-                arr[RGE_MC_PBEAM.addr] = pbeam;
-                arr[RGE_MC_BTYPE.addr] = static_cast<Float_t>(btype);
-                arr[RGE_MC_EBEAM.addr] = ebeam;
-                arr[RGE_MC_TARGETID.addr] = static_cast<Float_t>(targetid);
-                arr[RGE_MC_PROCESSID.addr] = static_cast<Float_t>(processid);
-                arr[RGE_MC_WEIGHT.addr] = weight;
-                arr[RGE_MC_P.addr] = 1;
-                arr[RGE_MC_THETA.addr] = 2;
-                arr[RGE_MC_PHI.addr] = 3;
-                arr[RGE_MC_BETA.addr] = 4;
-                arr[RGE_MC_Q2.addr] = 5;
-                arr[RGE_MC_NU.addr] = 6;
-                arr[RGE_MC_XB.addr] = 7;
-                arr[RGE_MC_YB.addr] = 8;
-                arr[RGE_MC_W2.addr] = 9;
-                arr[RGE_MC_ZH.addr] = 10;
-                arr[RGE_MC_PT2.addr] = 11;
-                arr[RGE_MC_PL2.addr] = 12;
-                arr[RGE_MC_PHIPQ.addr] = 13;
-                arr[RGE_MC_THETAPQ.addr] = 14;
+                rge_particle first_elec, mc_p;
+                mc_p = mc_particle_init(pid, vx, vy, vz, px, py, pz);
 
+                if (pos==0 && pid==11){
+                    mc_p.is_trigger = true;
+                    first_elec = mc_p;
+                    trigger_exist = true;
+                }
+                if (mc_rge_fill_ntuples_arr(
+                    arr, mc_p, first_elec, run_no, event, vt, npart, atarget, ztarget,
+                    ptarget, pbeam, btype, ebeam, targetid, processid, weight
+                )) return 1;
 
-                MC_tree_out->Fill(arr);
+                if (trigger_exist) MC_tree_out->Fill(arr);
             }
         }
 

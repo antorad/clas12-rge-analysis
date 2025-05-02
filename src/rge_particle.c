@@ -361,3 +361,79 @@ int rge_fill_ntuples_arr(
     arr[RGE_THETAPQ.addr] = theta_pq(p, e, beam_E);
     return 0;
 }
+
+//for MC particles
+rge_particle mc_particle_init(
+        int pid, double vx, double vy, double vz,
+        double px, double py, double pz
+) {
+    rge_particle p;
+
+    p.is_valid   = true;
+    p.is_trigger = false;
+
+    //check hadron status
+    if (pid >= 100 || pid <= -100) {
+        p.is_hadron = true;
+    }
+    else p.is_hadron  = false;
+
+    p.pid    = pid;
+
+    //double mass     = 0;
+    //rge_get_mass(pid, &mass);
+    //p.beta   = sqrt(px*px+py*py+pz*pz)/sqrt(px*px+py*py+pz*pz+mass*mass);
+    //p.beta = 1;
+
+    p.vx = vx;
+    p.vy = vy;
+    p.vz = vz;
+    p.px = px;
+    p.py = py;
+    p.pz = pz;
+
+    return p;
+}
+
+//for filling array of MC particles
+int mc_rge_fill_ntuples_arr(
+        Float_t *arr, rge_particle p, rge_particle e, int run_no, int evn, double vt,
+        int npart, int atarget, int ztarget, double ptarget, double pbeam, int btype, 
+        double ebeam, int targetid, int processid, double weight
+) {
+    arr[RGE_MC_RUNNO.addr] = static_cast<Float_t>(run_no);
+    arr[RGE_MC_EVENTNO.addr] = static_cast<Float_t>(evn);
+    arr[RGE_MC_PID.addr] = p.pid;
+    arr[RGE_MC_PX.addr] = p.px;
+    arr[RGE_MC_PY.addr] = p.py;
+    arr[RGE_MC_PZ.addr] = p.pz;
+    arr[RGE_MC_VX.addr] = p.vx;
+    arr[RGE_MC_VY.addr] = p.vy;
+    arr[RGE_MC_VZ.addr] = p.vz;
+    arr[RGE_MC_VT.addr] = vt;
+    arr[RGE_MC_NPART.addr] = static_cast<Float_t>(npart);
+    arr[RGE_MC_ATARGET.addr] = static_cast<Float_t>(atarget);
+    arr[RGE_MC_ZTARGET.addr] = static_cast<Float_t>(ztarget);
+    arr[RGE_MC_PTARGET.addr] = ptarget;
+    arr[RGE_MC_PBEAM.addr] = pbeam;
+    arr[RGE_MC_BTYPE.addr] = static_cast<Float_t>(btype);
+    arr[RGE_MC_EBEAM.addr] = ebeam;
+    arr[RGE_MC_TARGETID.addr] = static_cast<Float_t>(targetid);
+    arr[RGE_MC_PROCESSID.addr] = static_cast<Float_t>(processid);
+    arr[RGE_MC_WEIGHT.addr] = weight;
+    arr[RGE_MC_P.addr] = momentum(p);
+    arr[RGE_MC_THETA.addr] = theta_lab(p);
+    arr[RGE_MC_PHI.addr] = phi_lab(p);
+    arr[RGE_MC_BETA.addr] = 99;
+    arr[RGE_MC_Q2.addr] = Q2(e, ebeam);
+    arr[RGE_MC_NU.addr] = nu(e, ebeam);
+    arr[RGE_MC_XB.addr] = Xb(e, ebeam);
+    arr[RGE_MC_YB.addr] = Yb(e, ebeam);
+    arr[RGE_MC_W2.addr] = W2(e, ebeam);
+    arr[RGE_MC_ZH.addr] = zh(p, e, ebeam);
+    arr[RGE_MC_PT2.addr] = Pt2(p, e, ebeam);
+    arr[RGE_MC_PL2.addr] = Pl2(p, e, ebeam);
+    arr[RGE_MC_PHIPQ.addr] = phi_pq(p, e, ebeam);
+    arr[RGE_MC_THETAPQ.addr] = theta_pq(p, e, ebeam);
+    return 0;
+}

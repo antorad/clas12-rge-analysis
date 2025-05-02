@@ -243,4 +243,17 @@ int rge_fill_ntuples_arr(
         int nphe_htcc
 );
 
+
+//for MC particles
+rge_particle mc_particle_init(
+        int pid, double vx, double vy, double vz,
+        double px, double py, double pz
+);
+//Fill mc array
+int mc_rge_fill_ntuples_arr(
+        Float_t *arr, rge_particle p, rge_particle e, int run_no, int evn, double vt,
+        int npart, int atarget, int ztarget, double ptarget, double pbeam, int btype, 
+        double ebeam, int targetid, int processid, double weight
+);
+
 #endif
