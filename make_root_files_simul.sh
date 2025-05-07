@@ -46,7 +46,7 @@ if [ -d "$HIPO_DIR" ]; then
         # Run make_ntuples and change name of the output
         $MAKENTUPLES -w $WORK_DIR $WORK_DIR/banks_*.root
         mv $WORK_DIR/ntuples_dc_*.root $WORK_DIR/${FILE_COUNT}_ntuples_dc.root
-    rm $WORK_DIR/banks_*.root
+        rm $WORK_DIR/banks_*.root
         FILE_COUNT=$((FILE_COUNT + 1))
     done
 
