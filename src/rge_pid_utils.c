@@ -34,6 +34,7 @@ static const std::map<int, rge_pidconstants> PID_MAP = {
     {        13, pid_constants_init(-1, 0.10566,  "negative muon"        )},
     {        22, pid_constants_init( 0, 0.,       "photon"               )},
     {        45, pid_constants_init( 0, DBL_MAX,  "unidentified particle")},
+    {       111, pid_constants_init( 0, 0.134977, "neutral pion"         )},
     {       130, pid_constants_init( 0, 0.497611, "neutral kaon"         )},
     {       211, pid_constants_init( 1, 0.139570, "positive pion"        )},
     {       310, pid_constants_init( 0, 0.497614, "short kaon"           )},
