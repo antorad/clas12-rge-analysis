@@ -18,7 +18,13 @@
 // --+ internal +---------------------------------------------------------------
 /** Map linking PIDs to rge_pidconstants. */
 static const std::map<int, rge_pidconstants> PID_MAP = {
+    {     -3322, pid_constants_init( 0, 1.314860, "antixi"               )},
+    {     -3312, pid_constants_init( 1, 1.321710, "antinegative xi"      )},
+    {     -3222, pid_constants_init(-1, 1.189370, "antipositive sigma"   )},
+    {     -3122, pid_constants_init( 0, 1.115683, "antilambda"           )},
+    {     -3112, pid_constants_init( 1, 1.197449, "antinegative sigma"   )},
     {     -2212, pid_constants_init( 1, 0.938272, "antiproton"           )},
+    {     -2112, pid_constants_init( 0, 0.939565, "antineutron"          )},
     {      -321, pid_constants_init(-1, 0.493677, "negative kaon"        )},
     {      -211, pid_constants_init(-1, 0.139570, "negative pion"        )},
     {       -13, pid_constants_init( 1, 0.10566,  "positive muon"        )},
@@ -30,9 +36,15 @@ static const std::map<int, rge_pidconstants> PID_MAP = {
     {        45, pid_constants_init( 0, DBL_MAX,  "unidentified particle")},
     {       130, pid_constants_init( 0, 0.497611, "neutral kaon"         )},
     {       211, pid_constants_init( 1, 0.139570, "positive pion"        )},
+    {       310, pid_constants_init( 0, 0.497614, "short kaon"           )},
     {       321, pid_constants_init( 1, 0.493677, "positive kaon"        )},
     {      2112, pid_constants_init( 0, 0.939565, "neutron"              )},
-    {      2212, pid_constants_init( 1, 0.938272, "proton"               )}
+    {      2212, pid_constants_init( 1, 0.938272, "proton"               )},
+    {      3112, pid_constants_init(-1, 1.197449, "negative sigma"       )},
+    {      3122, pid_constants_init( 0, 1.115683, "lambda"               )},
+    {      3222, pid_constants_init( 1, 1.189370, "positive sigma"       )},
+    {      3312, pid_constants_init(-1, 1.321710, "negative xi"          )},
+    {      3322, pid_constants_init( 0, 1.314860, "xi"                   )}
 };
 
 rge_pidconstants pid_constants_init(int q, double m, const char *n) {
