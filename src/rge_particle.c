@@ -386,6 +386,7 @@ rge_particle mc_particle_init(
     else p.is_hadron  = false;
 
     p.pid    = pid;
+    rge_get_mass(pid, &(p.mass));
     p.vx = vx;
     p.vy = vy;
     p.vz = vz;
