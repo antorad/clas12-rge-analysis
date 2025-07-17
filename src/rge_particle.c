@@ -202,6 +202,7 @@ double Pl2(rge_particle p, rge_particle e, double bE) {
 
 double zh(rge_particle p, rge_particle e, double bE) {
     if (!(p.is_hadron && e.is_trigger)) return 0;
+    if (p.mass == -1) return -1;
     return sqrt(p.mass*p.mass + pow(momentum(p), 2)) / nu(e,bE);
 }
 
@@ -386,7 +387,7 @@ rge_particle mc_particle_init(
     else p.is_hadron  = false;
 
     p.pid    = pid;
-    rge_get_mass(pid, &(p.mass));
+    p.mass = rge_get_mc_mass(pid);
     p.vx = vx;
     p.vy = vy;
     p.vz = vz;
