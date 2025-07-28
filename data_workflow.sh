@@ -15,7 +15,7 @@ swif2 create test_data
 
 #Loop over run numbers from file adn add jobs to workflow
 while read -r RUN_NUMBER; do
-    COMMAND="./make_root_files_wf.sh -a -r $RUN_NUMBER"
-    #swif2 add-job test_data "cd $MAIN_DIR; $COMMAND"
-    echo 'testing command: $COMMAND'
+    COMMAND="./make_root_files_wf.sh -r $RUN_NUMBER"
+    swif2 add-job test_data -shell /bin/bash "cd $MAIN_DIR; $COMMAND"
+    #echo 'testing command: $COMMAND'
 done < run_list.txt
