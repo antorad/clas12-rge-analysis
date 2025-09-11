@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "--- Running: make_root_files_simul_wf ---"
+
 # Programs directories
 HIPO2ROOT="./bin/hipo2root" #hipo2root
 MAKENTUPLES="./bin/make_ntuples" #makentuples
@@ -11,11 +13,10 @@ NUM_FILES_TO_PROCESS=3
 PROCESS_ALL_FILES=false
 
 # Parse command-line options
-while getopts "aj:t:" opt; do
+while getopts "aj:" opt; do
   case $opt in
     a) PROCESS_ALL_FILES=true ;;
     j) JOB_NUMBER=$OPTARG ;;
-    t) TARGET=$OPTARG ;;
     \?) echo "Invalid option: -$OPTARG" >&2 ;;
   esac
 done
@@ -23,7 +24,6 @@ done
 # Directories necessary
 HIPO_DIR="/volatile/clas12/osg/antorad/job_$JOB_NUMBER/output/"
 WORK_DIR="root_io/simul/$JOB_NUMBER"
-OUT_DIR="ntuple_files/simul/$TARGET"
 
 mkdir -p $OUT_DIR
 mkdir -p $WORK_DIR
@@ -34,6 +34,10 @@ if [ -d "$HIPO_DIR" ]; then
     # Find all files with the specified extension in the current subdirectory
     FILES=($(find "$HIPO_DIR" -maxdepth 1 -type f -name "*"))
     FILE_COUNT=0
+
+    #Get target and create output directory
+    TARGET=$(ls "$HIPO_DIR"/RGE_*.hipo | head -n 1 | sed -E 's|.*/RGE_([^ -]+)-.*|\1|')
+    OUT_DIR="/volatile/clas12/antorad/rge/simul/$TARGET/"
 
     # Process files based on the flag
     for FILE in "${FILES[@]}"; do
@@ -54,7 +58,10 @@ if [ -d "$HIPO_DIR" ]; then
     # Merge all root files into one and move them to output directory
     echo "Merging root banks"
     hadd -f $WORK_DIR/ntuples_dc_${JOB_NUMBER}.root $WORK_DIR/*_ntuples_dc.root
-    mv $WORK_DIR/ntuples_dc_${JOB_NUMBER}.root $(printf $OUT_DIR/ntuples_dc_%06d.root $JOB_NUMBER)
+    mkdir -p $OUT_DIR/ntuple_files
+    mkdir -p $OUT_DIR/banks_root_files/$JOB_NUMBER
+    mv $WORK_DIR/ntuples_dc_${JOB_NUMBER}.root $(printf $OUT_DIR/ntuple_files/ntuples_dc_%06d.root $JOB_NUMBER)
+    mv $WORK_DIR/*_banks.root $OUT_DIR/banks_root_files/$JOB_NUMBER
     #rm -rf $WORK_DIR
 else
     echo "Directory $HIPO_DIR does not exist."
