@@ -1,4 +1,3 @@
-  GNU nano 5.6.1                             data_workflow.sh                                        
 #!/bin/bash
 
 WORKFLOW_NAME="rge_data_tuples_0.8"

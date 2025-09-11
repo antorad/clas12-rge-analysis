@@ -1,4 +1,3 @@
-  GNU nano 5.6.1                              job_wrapper.sh                                         
 #!/bin/bash
 
 echo "--- Running: job_wrapper ---"
