@@ -14,8 +14,8 @@ while read -r JOB_NUMBER; do
         -ram 1g \
         -disk 1g \
         -shell /bin/bash \
-        "cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./job_wrapper.sh $JOB_NUMBER"
-done < run_list_simul.txt
+        "cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./job_wrapper_simul.sh $JOB_NUMBER"
+done < job_list_simul.txt
 
 # Run workflow
 swif2 run $WORKFLOW_NAME
