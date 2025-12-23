@@ -72,7 +72,7 @@ static int run(
         lint nevents
 ) {
     // Number of banks to read/write depends on type of analysis.
-    if (use_fmt) BANKVECTOR.push_back(RGE_FMTTRACKS);
+    if (use_fmt) BANKVECTOR.push_back(RGE_RECFTRACK);
     if (is_MC)
     {
         BANKVECTOR.push_back(RGE_MCPARTICLE);

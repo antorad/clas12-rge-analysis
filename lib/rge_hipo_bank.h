@@ -45,7 +45,7 @@ typedef long int lint;
 #define RGE_RECCALORIMETER  "REC::Calorimeter"
 #define RGE_RECCHERENKOV    "REC::Cherenkov"
 #define RGE_RECSCINTILLATOR "REC::Scintillator"
-#define RGE_FMTTRACKS       "FMT::Tracks"
+#define RGE_RECFTRACK       "REC::FTrack"
 #define RGE_MCPARTICLE      "MC::Particle"
 #define RGE_MCEVENT         "MC::Event"
 

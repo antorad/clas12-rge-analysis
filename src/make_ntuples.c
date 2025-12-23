@@ -328,7 +328,7 @@ static int run(
         for( int i = 0; i < branch_list->GetEntries(); i++)
         {
             std::string branch_name = branch_list->At(i)->GetName();
-            if ( fmt_nlayers != 0 && branch_name.find(RGE_FMTTRACKS) != std::string::npos)
+            if ( fmt_nlayers != 0 && branch_name.find(RGE_RECFTRACK) != std::string::npos)
                 found_fmt = true;
             else if ( save_MC && branch_name.find(RGE_MCPARTICLE) != std::string::npos)
                 found_mc = true;
@@ -387,7 +387,7 @@ static int run(
     // Optional hipo banks
     rge_hipobank bfmt, bmcpart, bmcevent;
     if (fmt_nlayers != 0)
-        bfmt  = rge_hipobank_init(RGE_FMTTRACKS, tree_in);
+        bfmt  = rge_hipobank_init(RGE_RECFTRACK, tree_in);
     if (save_MC)
     {
         bmcpart  = rge_hipobank_init(RGE_MCPARTICLE, tree_in);

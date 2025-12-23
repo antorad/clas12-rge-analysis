@@ -249,12 +249,12 @@ rge_particle rge_particle_init(
             rge_get_double(particle, "charge", pindex),
             rge_get_double(particle, "beta",   pindex),
             rge_get_double(track,    "sector", pos),
-            rge_get_double(fmttrack, "Vtx0_x", index),
-            rge_get_double(fmttrack, "Vtx0_y", index),
-            rge_get_double(fmttrack, "Vtx0_z", index),
-            rge_get_double(fmttrack, "p0_x",   index),
-            rge_get_double(fmttrack, "p0_y",   index),
-            rge_get_double(fmttrack, "p0_z",   index)
+            rge_get_double(fmttrack, "vx", index),
+            rge_get_double(fmttrack, "vy", index),
+            rge_get_double(fmttrack, "vz", index),
+            rge_get_double(fmttrack, "px",   index),
+            rge_get_double(fmttrack, "py",   index),
+            rge_get_double(fmttrack, "pz",   index)
     );
 }
 

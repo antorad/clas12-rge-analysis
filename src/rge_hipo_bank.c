@@ -91,15 +91,15 @@ static std::map<
         {"detector", entry_init("REC::Scintillator::detector", BYTE)},
         {"layer",    entry_init("REC::Scintillator::layer",    BYTE)}
     }},
-    {RGE_FMTTRACKS, {
-        {"index",  entry_init("FMT::Tracks::index", SHORT)},
-        {"NDF",    entry_init("FMT::Tracks::ndf",   INT)},
-        {"Vtx0_x", entry_init("FMT::Tracks::vx",    FLOAT)},
-        {"Vtx0_y", entry_init("FMT::Tracks::vy",    FLOAT)},
-        {"Vtx0_z", entry_init("FMT::Tracks::vz",    FLOAT)},
-        {"p0_x",   entry_init("FMT::Tracks::px",    FLOAT)},
-        {"p0_y",   entry_init("FMT::Tracks::py",    FLOAT)},
-        {"p0_z",   entry_init("FMT::Tracks::pz",    FLOAT)}
+    {RGE_RECFTRACK, {
+        {"pindex", entry_init("REC::FTrack::pindex", SHORT)},
+        {"NDF",    entry_init("REC::FTrack::ndf",    SHORT)},
+        {"vx",     entry_init("REC::FTrack::vx",     FLOAT)},
+        {"vy",     entry_init("REC::FTrack::vy",     FLOAT)},
+        {"vz",     entry_init("REC::FTrack::vz",     FLOAT)},
+        {"px",     entry_init("REC::FTrack::px",     FLOAT)},
+        {"py",     entry_init("REC::FTrack::py",     FLOAT)},
+        {"pz",     entry_init("REC::FTrack::pz",     FLOAT)}
     }},
     {RGE_MCPARTICLE, {
         {"pid",   entry_init("MC::Particle::pid", INT)},
