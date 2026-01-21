@@ -550,6 +550,81 @@ static int run(
         if (!trigger_exist) continue;
         ++trigger_counter;
 
+    // ==========================================================
+        // NUEVO BLOQUE: Recuperacion de Fotones (Neutros)
+        // Insertar esto justo despues del bucle "for (uint pos = 0; pos < btrk.nrows...)"
+        // y antes de cerrar el bucle de eventos "for (lint event = 0...)"
+        // ==========================================================
+
+        for (uint pindex = 0; pindex < bpart.nrows; ++pindex) {
+            
+            int pid = rge_get_double(&bpart, "pid", pindex);
+            int charge = rge_get_double(&bpart, "charge", pindex); // Opcional si confías en el PID
+
+            // 1. FILTRO DE FOTONES
+            // Solo procesar si es PID 22 (Foton)
+            if (pid != 22) continue;
+
+            // 2. FILTRO DE ENERGIA (Mineeva sugiere > 0.2 o 0.3 GeV)
+            // Obtenemos momento px, py, pz del banco de partículas
+            double px = rge_get_double(&bpart, "px", pindex);
+            double py = rge_get_double(&bpart, "py", pindex);
+            double pz = rge_get_double(&bpart, "pz", pindex);
+            double p_mom = sqrt(px*px + py*py + pz*pz);
+            
+            //if (p_mom < 0.1) continue; // Descartar ruido de baja energía
+
+            // 3. OBTENER ENERGIA DEL CALORIMETRO
+            // Necesitamos esto para las correcciones de Mineeva
+            double energy_PCAL, energy_ECIN, energy_ECOU;
+            // Nota: get_deposited_energy usa pindex, asi que funciona para neutros
+            if (get_deposited_energy(&bcal, pindex, &energy_PCAL, &energy_ECIN, &energy_ECOU)) 
+                continue; 
+
+            // 4. CONSTRUIR LA PARTICULA 'MANUALMENTE'
+            // Como no hay 'pos' de track, no podemos usar rge_particle_init.
+            // Creamos una estructura dummy y la llenamos manualmente.
+            rge_particle photon_part;
+            photon_part.pid = pid;
+            photon_part.px = px;
+            photon_part.py = py;
+            photon_part.pz = pz;
+            photon_part.vx = rge_get_double(&bpart, "vx", pindex);
+            photon_part.vy = rge_get_double(&bpart, "vy", pindex);
+            photon_part.vz = rge_get_double(&bpart, "vz", pindex);
+
+            photon_part.charge = 0;
+            photon_part.beta = rge_get_double(&bpart, "beta", pindex);
+ 
+            // Importante: marcar como valida
+            photon_part.is_valid = true; 
+
+            // 5. IDENTIFICACION DE FOTONES (Cortes de tiempo/beta)
+            // Mineeva usa cortes de beta. Obtenemos el TOF.
+            double tof = get_tof(&bsci, &bcal, pindex);
+            
+            // 6. GUARDAR EN EL TREE
+            // Usamos valores 'dummy' (0 o -1) para variables que solo tienen las trazas (chi2, ndf, etc)
+            Float_t arr[RGE_VARS_SIZE];
+            
+            // status del banco de particulas
+            int status = rge_get_double(&bpart, "status", pindex);
+
+            // Llamamos a la funcion de llenado.
+            // Nota: Pasamos photon_part como la particula, y part_trigger (el electron) como referencia
+            if (rge_fill_ntuples_arr(
+                    arr, photon_part, part_trigger, run_no, event, status, energy_beam,
+                    -100.0, -100.0, energy_PCAL, energy_ECIN, energy_ECOU, tof,
+                    trigger_tof, 0, 0 // No Cherenkov para fotones
+            )) continue;
+
+            tree_out->Fill(arr);
+        }
+
+    //-----------------------------------------------------
+    //ACA TERMINA EL NUEVO BLOQUE
+    //-----------------------------------------------------
+
         // Processing particles.
         for (uint pos = 0; pos < entry_counter; ++pos) {
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
