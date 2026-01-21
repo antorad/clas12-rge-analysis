@@ -338,7 +338,7 @@ static int run(
         }
     }
 
-    // If fmt_nlayers != 0, check that FMT::Tracks bank exists.
+    // If fmt_nlayers != 0, check that REC::FTrack bank exists.
     if (fmt_nlayers != 0 && !found_fmt) {
         rge_errno = RGEERR_NOFMTBANK;
         return 1;
@@ -475,8 +475,13 @@ static int run(
         uint trigger_pos    = UINT_MAX;
         uint trigger_pindex = UINT_MAX;
         double trigger_tof  = -1.;
-        for (uint pos = 0; pos < btrk.nrows; ++pos) {
+        uint entry_counter = btrk.nrows;
+        if (fmt_nlayers != 0)
+            entry_counter = bfmt.nrows; 
+        for (uint pos = 0; pos < entry_counter; ++pos) {
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
+            if (fmt_nlayers != 0)
+                pindex = rge_get_uint(&bfmt, "pindex", pos);
 
             // Get reconstructed particle from DC and from FMT.
             part_trigger = rge_particle_init(
@@ -546,8 +551,10 @@ static int run(
         ++trigger_counter;
 
         // Processing particles.
-        for (uint pos = 0; pos < btrk.nrows; ++pos) {
+        for (uint pos = 0; pos < entry_counter; ++pos) {
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
+            if (fmt_nlayers != 0)
+                pindex = rge_get_uint(&bfmt, "pindex", pos);
 
             // Avoid double-counting the trigger electron.
             if (trigger_pindex == pindex && trigger_pos == pos) {

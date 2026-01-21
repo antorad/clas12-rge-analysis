@@ -236,25 +236,24 @@ rge_particle rge_particle_init(
     }
 
     // Use DC+FMT tracking data.
-    uint index = rge_get_uint(track, "index", pos);
-
+    pindex = rge_get_uint(fmttrack, "pindex", pos);
     // Apply FMT cuts.
     // Track reconstructed by FMT.
     if (fmttrack->nrows < 1) return particle_init();
     // Track crossed enough FMT layers.
-    if (rge_get_uint(fmttrack, "NDF", index) < fmt_nlayers)
+    if (rge_get_uint(fmttrack, "NDF", pos) < fmt_nlayers)
         return particle_init();
 
     return particle_init(
             rge_get_double(particle, "charge", pindex),
             rge_get_double(particle, "beta",   pindex),
-            rge_get_double(track,    "sector", pos),
-            rge_get_double(fmttrack, "vx", index),
-            rge_get_double(fmttrack, "vy", index),
-            rge_get_double(fmttrack, "vz", index),
-            rge_get_double(fmttrack, "px",   index),
-            rge_get_double(fmttrack, "py",   index),
-            rge_get_double(fmttrack, "pz",   index)
+            rge_get_double(fmttrack, "sector", pos),
+            rge_get_double(fmttrack, "vx", pos),
+            rge_get_double(fmttrack, "vy", pos),
+            rge_get_double(fmttrack, "vz", pos),
+            rge_get_double(fmttrack, "px",   pos),
+            rge_get_double(fmttrack, "py",   pos),
+            rge_get_double(fmttrack, "pz",   pos)
     );
 }
 
