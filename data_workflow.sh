@@ -1,6 +1,7 @@
 #!/bin/bash
 
-WORKFLOW_NAME="rge_data_tuples_0.8"
+WORKFLOW_NAME="rge_data_tuples_0.10_fmt"
+BANKS="fmt"
 
 # Create workflow
 swif2 create $WORKFLOW_NAME
@@ -14,8 +15,8 @@ while read -r RUN_NUMBER; do
         -ram 1g \
         -disk 1g \
         -shell /bin/bash \
-        "cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./job_wrapper.sh $RUN_NUMBER"
-done < run_list_all.txt
+        "cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./job_wrapper.sh $BANKS $RUN_NUMBER"
+done < run_list.txt
 
 # Run workflow
 swif2 run $WORKFLOW_NAME
