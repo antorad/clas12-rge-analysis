@@ -45,6 +45,7 @@ typedef long int lint;
 #define RGE_RECCALORIMETER  "REC::Calorimeter"
 #define RGE_RECCHERENKOV    "REC::Cherenkov"
 #define RGE_RECSCINTILLATOR "REC::Scintillator"
+#define RGE_RECTRAJ         "REC::Traj"
 #define RGE_RECFTRACK       "REC::FTrack"
 #define RGE_MCPARTICLE      "MC::Particle"
 #define RGE_MCEVENT         "MC::Event"
@@ -53,6 +54,9 @@ typedef long int lint;
 #define PCAL_LYR 1
 #define ECIN_LYR 4
 #define ECOU_LYR 7
+#define DC_R1_LYR 6
+#define DC_R2_LYR 18
+#define DC_R3_LYR 36
 
 // --+ structs +----------------------------------------------------------------
 /** String comparer to use const char * as std::map keys. */
