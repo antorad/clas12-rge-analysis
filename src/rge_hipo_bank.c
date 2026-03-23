@@ -91,6 +91,13 @@ static std::map<
         {"detector", entry_init("REC::Scintillator::detector", BYTE)},
         {"layer",    entry_init("REC::Scintillator::layer",    BYTE)}
     }},
+    {RGE_RECTRAJ, {
+        {"pindex",   entry_init("REC::Traj::pindex",   SHORT)},
+        {"index",    entry_init("REC::Traj::index",    SHORT)},
+        {"detector", entry_init("REC::Traj::detector", BYTE)},
+        {"layer",    entry_init("REC::Traj::layer",    BYTE)},
+        {"edge",     entry_init("REC::Traj::edge",     FLOAT)}
+    }},
     {RGE_RECFTRACK, {
         {"pindex", entry_init("REC::FTrack::pindex", SHORT)},
         {"NDF",    entry_init("REC::FTrack::ndf",    SHORT)},
