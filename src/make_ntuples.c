@@ -55,6 +55,7 @@ static const char *USAGE_MESSAGE =
 static const uint FTOF_ID = 12;
 static const uint HTCC_ID = 15;
 static const uint LTCC_ID = 16;
+static const uint DC_ID   = 6;
 
 /** FTOF layer IDs from CLAS12 reconstruction. */
 static const uint FTOF1A_LYR = 1;
@@ -191,6 +192,82 @@ static int get_deposited_energy(
         else if (layer == ECOU_LYR) *energy_ECOU += energy;
         else {
             rge_errno = RGEERR_INVALIDCALLAYER;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * Get distance on each PCAL side for particle with pindex from PCAL.
+ *
+ * @param calorimeter : pointer to the calorimeter rge_hipobank.
+ * @param pindex      : particle index of the particle we're studying
+ * @param PCAL_U      : pointer to double to which we'll write the PCAL_U distance.
+ * @param PCAL_V      : pointer to double to which we'll write the PCAL_V distance.
+ * @param PCAL_W      : pointer to double to which we'll write the PCAL_W distance.
+ * @return            : error code. 0 if successful, 1 otherwise. The function
+ *                      only returns 1 if there's an invalid layer in the
+ *                      calorimeter bank, suggesting corruption or a change in
+ *                      the REC::Calorimeter bank structure.
+ */
+static int get_pcal_distance(
+        rge_hipobank *calorimeter, uint pindex, double *PCAL_U,
+        double *PCAL_V, double *PCAL_W
+) {
+    *PCAL_U = -999;
+    *PCAL_V = -999;
+    *PCAL_W = -999;
+
+    for (uint i = 0; i < calorimeter->nrows; ++i) {
+        if (rge_get_uint(calorimeter,"pindex",i) != pindex) continue;
+
+        int layer = rge_get_int   (calorimeter, "layer",  i);
+
+        if (layer == PCAL_LYR){
+            *PCAL_U = rge_get_double(calorimeter, "lu", i);
+            *PCAL_V = rge_get_double(calorimeter, "lv", i);
+            *PCAL_W = rge_get_double(calorimeter, "lw", i);
+        }
+        else if (layer == ECOU_LYR || layer == ECIN_LYR) continue;
+        else {
+            rge_errno = RGEERR_INVALIDCALLAYER;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * Get distance desitance to edge for each DC region for particle with pindex from Traj.
+ *
+ * @param trajectory  : pointer to the trajectory rge_hipobank.
+ * @param pindex      : particle index of the particle we're studying
+ * @param DC_R1_edge  : pointer to double to which we'll write the DC_R1_edge distance.
+ * @param DC_R1_edge  : pointer to double to which we'll write the DC_R2_edge distance.
+ * @param DC_R1_edge  : pointer to double to which we'll write the DC_R3_edge distance.
+ * @return            : error code. 0 if successful, 1 otherwise.
+ */
+static int get_dc_edge(
+        rge_hipobank *trajectory, uint pindex, double *DC_R1_edge,
+        double *DC_R2_edge, double *DC_R3_edge
+) {
+    *DC_R1_edge = -999;
+    *DC_R2_edge = -999;
+    *DC_R3_edge = -999;
+
+    for (uint i = 0; i < trajectory->nrows; ++i) {
+        if (rge_get_uint(trajectory,"pindex",i) != pindex ||
+            rge_get_int(trajectory,"detector",i) != DC_ID) continue;
+
+        int layer = rge_get_int(trajectory, "layer",  i);
+
+        if      (layer == DC_R1_LYR) *DC_R1_edge = rge_get_double(trajectory, "edge", i);
+        else if (layer == DC_R2_LYR) *DC_R2_edge = rge_get_double(trajectory, "edge", i);
+        else if (layer == DC_R3_LYR) *DC_R3_edge = rge_get_double(trajectory, "edge", i);
+        else {
             return 1;
         }
     }
@@ -358,6 +435,7 @@ static int run(
         vars_string.Append(Form("%s", RGE_VARS[var_i]));
         if (var_i != RGE_VARS_SIZE-1) vars_string.Append(":");
     }
+    std::cout<<vars_string<<std::endl;
     TString MC_vars_string("");
     if (save_MC)
     {   
@@ -381,6 +459,7 @@ static int run(
     // Associate banks to TTree.
     rge_hipobank bpart = rge_hipobank_init(RGE_RECPARTICLE,     tree_in);
     rge_hipobank btrk  = rge_hipobank_init(RGE_RECTRACK,        tree_in);
+    rge_hipobank btraj = rge_hipobank_init(RGE_RECTRAJ,        tree_in);
     rge_hipobank bcal  = rge_hipobank_init(RGE_RECCALORIMETER,  tree_in);
     rge_hipobank bchkv = rge_hipobank_init(RGE_RECCHERENKOV,    tree_in);
     rge_hipobank bsci  = rge_hipobank_init(RGE_RECSCINTILLATOR, tree_in);
@@ -414,6 +493,7 @@ static int run(
         // Get entries from input file.
         rge_get_entries(&bpart, tree_in, event);
         rge_get_entries(&btrk,  tree_in, event);
+        rge_get_entries(&btraj, tree_in, event);
         rge_get_entries(&bcal,  tree_in, event);
         rge_get_entries(&bchkv, tree_in, event);
         rge_get_entries(&bsci,  tree_in, event);
@@ -504,6 +584,18 @@ static int run(
                     &bcal, pindex, &energy_PCAL, &energy_ECIN, &energy_ECOU
             )) return 1;
 
+            //Get PCAL distances to each side
+            double PCAL_U, PCAL_V, PCAL_W;
+            if (get_pcal_distance(
+                    &bcal, pindex, &PCAL_U, &PCAL_V, &PCAL_W
+            )) return 1;
+
+            //Get DC edge distances for each region
+            double DC_R1_edge, DC_R2_edge, DC_R3_edge;
+            if (get_dc_edge(
+                    &btraj, pindex, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge
+            )) return 1;
+
             // Get number of photoelectrons from Cherenkov counters.
             int nphe_HTCC, nphe_LTCC;
             if (count_photoelectrons(&bchkv, pindex, &nphe_HTCC, &nphe_LTCC))
@@ -533,7 +625,8 @@ static int run(
             if (rge_fill_ntuples_arr(
                     arr, part_trigger, part_trigger, run_no, event, status,
                     energy_beam, chi2, ndf, energy_PCAL, energy_ECIN,
-                    energy_ECOU, tof, tof, nphe_LTCC, nphe_HTCC
+                    energy_ECOU, tof, tof, nphe_LTCC, nphe_HTCC, PCAL_U,
+                    PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;
 
             tree_out->Fill(arr);
@@ -581,6 +674,13 @@ static int run(
             if (get_deposited_energy(&bcal, pindex, &energy_PCAL, &energy_ECIN, &energy_ECOU)) 
                 continue; 
 
+            //Get PCAL distances to each side
+            double PCAL_U, PCAL_V, PCAL_W;
+            if (get_pcal_distance(
+                    &bcal, pindex, &PCAL_U, &PCAL_V, &PCAL_W
+            )) return 1;
+
+
             // 4. CONSTRUIR LA PARTICULA 'MANUALMENTE'
             // Como no hay 'pos' de track, no podemos usar rge_particle_init.
             // Creamos una estructura dummy y la llenamos manualmente.
@@ -615,7 +715,7 @@ static int run(
             if (rge_fill_ntuples_arr(
                     arr, photon_part, part_trigger, run_no, event, status, energy_beam,
                     -100.0, -100.0, energy_PCAL, energy_ECIN, energy_ECOU, tof,
-                    trigger_tof, 0, 0 // No Cherenkov para fotones
+                    trigger_tof, 0, 0, PCAL_U, PCAL_V, PCAL_W, -999, -999, -999 // No Cherenkov para fotones
             )) continue;
 
             tree_out->Fill(arr);
@@ -657,6 +757,18 @@ static int run(
                     &bcal, pindex, &energy_PCAL, &energy_ECIN, &energy_ECOU
             )) return 1;
 
+            //Get PCAL distances to each side
+            double PCAL_U, PCAL_V, PCAL_W;
+            if (get_pcal_distance(
+                    &bcal, pindex, &PCAL_U, &PCAL_V, &PCAL_W
+            )) return 1;
+
+            //Get DC edge distances for each region
+            double DC_R1_edge, DC_R2_edge, DC_R3_edge;
+            if (get_dc_edge(
+                    &btraj, pindex, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge
+            )) return 1;
+
             // Get Cherenkov counters data.
             int nphe_HTCC, nphe_LTCC;
             if (count_photoelectrons(&bchkv, pindex, &nphe_HTCC, &nphe_LTCC))
@@ -684,7 +796,8 @@ static int run(
             if (rge_fill_ntuples_arr(
                     arr, part, part_trigger, run_no, event, status, energy_beam,
                     chi2, ndf, energy_PCAL, energy_ECIN, energy_ECOU, tof,
-                    trigger_tof, nphe_LTCC, nphe_HTCC
+                    trigger_tof, nphe_LTCC, nphe_HTCC, PCAL_U,
+                    PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;
 
             tree_out->Fill(arr);

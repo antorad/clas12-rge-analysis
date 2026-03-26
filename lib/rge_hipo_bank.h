@@ -52,6 +52,9 @@ typedef long int lint;
 
 /** ECAL layer IDs in CLAS12 banks. */
 #define PCAL_LYR 1
+#define PCAL_U_LYR 1
+#define PCAL_V_LYR 2
+#define PCAL_W_LYR 3
 #define ECIN_LYR 4
 #define ECOU_LYR 7
 #define DC_R1_LYR 6

@@ -311,7 +311,8 @@ int rge_fill_ntuples_arr(
         Float_t *arr, rge_particle p, rge_particle e, int run_no, int evn,
         int status, double beam_E, float chi2, float ndf, double pcal_energy,
         double ecin_E, double ecou_E, double tof, double tre_tof, int nphe_ltcc,
-        int nphe_htcc
+        int nphe_htcc, double PCAL_U, double PCAL_V, double PCAL_W,
+        double DC_R1_edge, double DC_R2_edge, double DC_R3_edge
 ) {
     // Metadata.
     arr[RGE_RUNNO.addr]   = static_cast<Float_t>(run_no);
@@ -339,11 +340,19 @@ int rge_fill_ntuples_arr(
     arr[RGE_CHI2.addr] = chi2;
     arr[RGE_NDF.addr]  = ndf;
 
+    //Trajectory
+    arr[RGE_DCR1EDGE.addr] = DC_R1_edge;
+    arr[RGE_DCR2EDGE.addr] = DC_R2_edge;
+    arr[RGE_DCR3EDGE.addr] = DC_R3_edge;
+
     // Calorimeter.
     arr[RGE_PCALE.addr] = pcal_energy;
     arr[RGE_ECINE.addr] = ecin_E;
     arr[RGE_ECOUE.addr] = ecou_E;
     arr[RGE_TOTE.addr]  = pcal_energy + ecin_E + ecou_E;
+    arr[RGE_PCALU.addr] = PCAL_U;
+    arr[RGE_PCALV.addr] = PCAL_V;
+    arr[RGE_PCALW.addr] = PCAL_W;
 
     // Scintillator.
     arr[RGE_DTOF.addr] = tof - tre_tof;

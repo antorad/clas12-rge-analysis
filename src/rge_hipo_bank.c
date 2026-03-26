@@ -78,7 +78,10 @@ static std::map<
         {"layer",  entry_init("REC::Calorimeter::layer",  BYTE)},
         {"sector", entry_init("REC::Calorimeter::sector", BYTE)},
         {"energy", entry_init("REC::Calorimeter::energy", FLOAT)},
-        {"time",   entry_init("REC::Calorimeter::time",   FLOAT)}
+        {"time",   entry_init("REC::Calorimeter::time",   FLOAT)},
+        {"lu",     entry_init("REC::Calorimeter::lu",   FLOAT)},
+        {"lv",     entry_init("REC::Calorimeter::lv",   FLOAT)},
+        {"lw",     entry_init("REC::Calorimeter::lw",   FLOAT)}
     }},
     {RGE_RECCHERENKOV, {
         {"pindex",   entry_init("REC::Cherenkov::pindex",   SHORT)},
