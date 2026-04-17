@@ -11,9 +11,9 @@ while read -r RUN_NUMBER; do
     swif2 add-job $WORKFLOW_NAME \
         -name run_$RUN_NUMBER \
         -partition production \
-        -time 2h \
-        -ram 1g \
-        -disk 1g \
+        -time 5h \
+        -ram 2g \
+        -disk 100g \
         -shell /bin/bash \
         "cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./job_wrapper.sh $BANKS $RUN_NUMBER"
 done < runs/run_list.txt
