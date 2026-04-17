@@ -11,7 +11,7 @@ OUT_DIR="ntuple_files/data/"
 mkdir -p $OUT_DIR
 
 # Define the file that contains the list of runs to process
-RUN_LIST_FILE="runs/run_inb_test.txt"
+RUN_LIST_FILE="runs/runs_inb_test.txt"
 
 # Define the number of files to process in each subdirectory
 NUM_FILES_TO_PROCESS=3
@@ -58,7 +58,7 @@ for RUN_NUMBER in "${RUNS_TO_PROCESS[@]}"; do
         FILE_COUNT=0
         # Process files based on the flag
         for FILE in "${FILES[@]}"; do
-            if [ "$PROCESS_ALL_FILES" = false ] && [ "$FILE_COUNT" -ge "$NUM_FILES_TO_PROCESS" ]; th>
+            if [ "$PROCESS_ALL_FILES" = false ] && [ "$FILE_COUNT" -ge "$NUM_FILES_TO_PROCESS" ]; then
                 break
             fi
 
