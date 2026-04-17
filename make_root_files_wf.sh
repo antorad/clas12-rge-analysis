@@ -7,8 +7,8 @@ HIPO2ROOT="./bin/hipo2root" #hipo2root bruno
 MAKENTUPLES="./bin/make_ntuples" #makentuples
 
 # Directories necessary
-HIPO_DIR="/volatile/clas12/rg-e/production/pass0.10/mon/recon/"
-OUT_DIR="/volatile/clas12/antorad/rge/data/pass0.10/"
+HIPO_DIR="/cache/clas12/rg-e/production/spring2024/pass1/torus-1/C_D2/dst/recon/"
+OUT_DIR="/volatile/clas12/antorad/rge/data/pass1/C_D2/"
 mkdir -p $OUT_DIR
 
 # Define the number of files to process in each subdirectory
