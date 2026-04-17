@@ -5,13 +5,13 @@ HIPO2ROOT="./bin/hipo2root" #hipo2root bruno
 MAKENTUPLES="./bin/make_ntuples" #makentuples
 
 # Directories necessary
-HIPO_DIR="/volatile/clas12/rg-e/production/pass0.10/mon/recon/"
+HIPO_DIR="/cache/clas12/rg-e/production/spring2024/pass1/torus-1/C_D2/dst/recon/"
 OUT_DIR="ntuple_files/data/"
 
 mkdir -p $OUT_DIR
 
 # Define the file that contains the list of runs to process
-RUN_LIST_FILE="run_list.txt"
+RUN_LIST_FILE="runs/run_inb_test.txt"
 
 # Define the number of files to process in each subdirectory
 NUM_FILES_TO_PROCESS=3
