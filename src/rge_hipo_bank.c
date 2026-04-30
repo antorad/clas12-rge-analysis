@@ -79,6 +79,7 @@ static std::map<
         {"sector", entry_init("REC::Calorimeter::sector", BYTE)},
         {"energy", entry_init("REC::Calorimeter::energy", FLOAT)},
         {"time",   entry_init("REC::Calorimeter::time",   FLOAT)},
+        {"path",   entry_init("REC::Calorimeter::path",   FLOAT)},
         {"lu",     entry_init("REC::Calorimeter::lu",   FLOAT)},
         {"lv",     entry_init("REC::Calorimeter::lv",   FLOAT)},
         {"lw",     entry_init("REC::Calorimeter::lw",   FLOAT)}
@@ -91,6 +92,7 @@ static std::map<
     {RGE_RECSCINTILLATOR, {
         {"pindex",   entry_init("REC::Scintillator::pindex",   SHORT)},
         {"time",     entry_init("REC::Scintillator::time",     FLOAT)},
+        {"path",     entry_init("REC::Scintillator::path",     FLOAT)},
         {"detector", entry_init("REC::Scintillator::detector", BYTE)},
         {"layer",    entry_init("REC::Scintillator::layer",    BYTE)}
     }},

@@ -27,7 +27,7 @@ rge_particle particle_init() {
 
 rge_particle particle_init(
         int charge, double beta, int sector, double vx, double vy, double vz,
-        double px, double py, double pz
+        double vt, double px, double py, double pz
 ) {
     rge_particle p;
 
@@ -43,6 +43,7 @@ rge_particle particle_init(
     p.vx = vx;
     p.vy = vy;
     p.vz = vz;
+    p.vt = vt;
     p.px = px;
     p.py = py;
     p.pz = pz;
@@ -229,6 +230,7 @@ rge_particle rge_particle_init(
                 rge_get_double(particle, "vx", pindex),
                 rge_get_double(particle, "vy", pindex),
                 rge_get_double(particle, "vz", pindex),
+                rge_get_double(particle, "vt", pindex),
                 rge_get_double(particle, "px", pindex),
                 rge_get_double(particle, "py", pindex),
                 rge_get_double(particle, "pz", pindex)
@@ -251,6 +253,7 @@ rge_particle rge_particle_init(
             rge_get_double(fmttrack, "vx", pos),
             rge_get_double(fmttrack, "vy", pos),
             rge_get_double(fmttrack, "vz", pos),
+            rge_get_double(fmttrack, "vt", pos),
             rge_get_double(fmttrack, "px",   pos),
             rge_get_double(fmttrack, "py",   pos),
             rge_get_double(fmttrack, "pz",   pos)
@@ -310,7 +313,7 @@ int rge_set_pid(
 int rge_fill_ntuples_arr(
         Float_t *arr, rge_particle p, rge_particle e, int run_no, int evn,
         int status, double beam_E, float chi2, float ndf, double pcal_energy,
-        double ecin_E, double ecou_E, double tof, double tre_tof, int nphe_ltcc,
+        double ecin_E, double ecou_E, double tof, double path, int nphe_ltcc,
         int nphe_htcc, double PCAL_U, double PCAL_V, double PCAL_W,
         double DC_R1_edge, double DC_R2_edge, double DC_R3_edge
 ) {
@@ -326,6 +329,7 @@ int rge_fill_ntuples_arr(
     arr[RGE_VX.addr]     = p.vx;
     arr[RGE_VY.addr]     = p.vy;
     arr[RGE_VZ.addr]     = p.vz;
+    arr[RGE_VT.addr]     = p.vt;
     arr[RGE_PX.addr]     = p.px;
     arr[RGE_PY.addr]     = p.py;
     arr[RGE_PZ.addr]     = p.pz;
@@ -355,7 +359,8 @@ int rge_fill_ntuples_arr(
     arr[RGE_PCALW.addr] = PCAL_W;
 
     // Scintillator.
-    arr[RGE_DTOF.addr] = tof - tre_tof;
+    arr[RGE_TOF.addr] = tof;
+    arr[RGE_PATH.addr] = path;
 
     // Cherenkov.
     arr[RGE_NPHELTCC.addr] = nphe_ltcc;
