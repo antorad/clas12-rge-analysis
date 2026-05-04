@@ -2,37 +2,50 @@
 
 echo "--- Running: make_root_files_wf ---"
 
+# Environment setup
+module use /scigroup/cvmfs/hallb/clas12/sw/modulefiles
+module load clas12
+export ROOT=/u/scigroup/cvmfs/hallb/clas12/sw/almalinux9-gcc11/local/root/6.36.04/
+cd /work/clas12/rg-e/antorad/clas12-rge-analysis
+
 # Programs directories
 HIPO2ROOT="./bin/hipo2root" #hipo2root bruno
 MAKENTUPLES="./bin/make_ntuples" #makentuples
 
-# Directories necessary
-HIPO_DIR="/cache/clas12/rg-e/production/spring2024/pass1/torus-1/C_D2/dst/recon/"
-OUT_DIR="/volatile/clas12/antorad/rge/data/pass1/C_D2/"
-mkdir -p $OUT_DIR
-
-# Define the number of files to process in each subdirectory
-NUM_FILES_TO_PROCESS=3
-
 # Define default flags (set to true to process all, false to process a fixed number)
+NUM_FILES_TO_PROCESS=3
 F_FLAG_H2R=""
 F_FLAG_MNT=""
-LABEL="dc"
+LABEL="UNK"
 PROCESS_ALL_FILES=false
 
 # Parse command-line options
-while getopts "afr:" opt; do
+while getopts "ab:r:t:" opt; do
   case $opt in
     a) PROCESS_ALL_FILES=true;;
-    f)
-       F_FLAG_H2R="-f"
-       F_FLAG_MNT="-f 2"
-       LABEL="fmt2"
-       ;;
+    b)
+       if [ "$OPTARG" == "dc" ]; then
+           LABEL="dc"
+       elif [ "$OPTARG" == "fmt" ]; then
+           F_FLAG_H2R="-f"
+           F_FLAG_MNT="-f 2"
+           LABEL="fmt2"
+       else
+           echo "Wrong bank name"
+           exit 1
+       fi ;;
     r) RUN_NUMBER=$OPTARG;;
+    t) TARGET=$OPTARG;;
     \?) echo "Invalid option: -$OPTARG" >&2;;
   esac
 done
+
+echo "--- Processing run: $RUN_NUMBER with target: $TARGET and $LABEL banks ---"
+
+# Directories necessary
+HIPO_DIR="/cache/clas12/rg-e/production/spring2024/pass1/torus-1/${TARGET}_D2/dst/recon/"
+OUT_DIR="/volatile/clas12/antorad/rge/data/pass1/${TARGET}_D2/"
+mkdir -p $OUT_DIR
 
 # Iterate over each subdirectory in the run list
 echo "Processing RUN_NUMBER: $RUN_NUMBER"

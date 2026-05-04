@@ -1,7 +1,9 @@
 #!/bin/bash
 
-WORKFLOW_NAME="rge_data_tuples_C_1"
+TARGET=$1
 BANKS="dc"
+
+WORKFLOW_NAME="rge_data_tuples_${TARGET}_${BANKS}_1"
 
 # Create workflow
 swif2 create $WORKFLOW_NAME
@@ -11,12 +13,12 @@ while read -r RUN_NUMBER; do
     swif2 add-job $WORKFLOW_NAME \
         -name run_$RUN_NUMBER \
         -partition production \
-        -time 10h \
+        -time 11h \
         -ram 2g \
         -disk 100g \
         -shell /bin/bash \
-        "cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./job_wrapper.sh $BANKS $RUN_NUMBER"
-done < runs/run_list.txt
+        "cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./make_root_files_wf.sh -a -b $BANKS -r $RUN_NUMBER -t $TARGET"
+done < runs/runs_inb_${TARGET}_D2_1.txt
 
 # Run workflow
 swif2 run $WORKFLOW_NAME
