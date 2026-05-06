@@ -501,12 +501,13 @@ static int run(
         if (!debug) rge_pbar_update(event);
 
         // Get entries from input file.
-        rge_get_entries(&bpart, tree_in, event);
-        rge_get_entries(&btrk,  tree_in, event);
-        rge_get_entries(&btraj, tree_in, event);
-        rge_get_entries(&bcal,  tree_in, event);
-        rge_get_entries(&bchkv, tree_in, event);
-        rge_get_entries(&bsci,  tree_in, event);
+        rge_get_entries(&bevent, tree_in, event);
+        rge_get_entries(&bpart,  tree_in, event);
+        rge_get_entries(&btrk,   tree_in, event);
+        rge_get_entries(&btraj,  tree_in, event);
+        rge_get_entries(&bcal,   tree_in, event);
+        rge_get_entries(&bchkv,  tree_in, event);
+        rge_get_entries(&bsci,   tree_in, event);
         if (fmt_nlayers != 0) rge_get_entries(&bfmt, tree_in, event);
         if (save_MC) 
         {
