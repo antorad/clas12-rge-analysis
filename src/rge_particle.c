@@ -312,15 +312,17 @@ int rge_set_pid(
 
 int rge_fill_ntuples_arr(
         Float_t *arr, rge_particle p, rge_particle e, int run_no, int evn,
-        int status, double beam_E, float chi2, float ndf, double pcal_energy,
-        double ecin_E, double ecou_E, double tof, double path, int nphe_ltcc,
-        int nphe_htcc, double PCAL_U, double PCAL_V, double PCAL_W,
+        double start_time, int status, double beam_E, float chi2, float ndf,
+        double pcal_energy, double ecin_E, double ecou_E, double tof, double path,
+        int nphe_ltcc, int nphe_htcc, double PCAL_U, double PCAL_V, double PCAL_W,
         double DC_R1_edge, double DC_R2_edge, double DC_R3_edge
 ) {
     // Metadata.
-    arr[RGE_RUNNO.addr]   = static_cast<Float_t>(run_no);
-    arr[RGE_EVENTNO.addr] = static_cast<Float_t>(evn);
-    arr[RGE_BEAME.addr]   = beam_E;
+    arr[RGE_RUNNO.addr]     = static_cast<Float_t>(run_no);
+    arr[RGE_EVENTNO.addr]   = static_cast<Float_t>(evn);
+    arr[RGE_BEAME.addr]     = beam_E;
+    arr[RGE_START.addr]     = start_time;
+
     // Particle.
     arr[RGE_PID.addr]    = static_cast<Float_t>(p.pid);
     arr[RGE_CHARGE.addr] = p.charge;

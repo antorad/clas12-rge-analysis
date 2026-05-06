@@ -52,6 +52,9 @@ double get_entry(rge_hipobank *b, const char *var, luint idx) {
 static std::map<
         const char *, std::map<const char *, rge_hipoentry, cmp_str>, cmp_str
 > ENTRYMAP = {
+    {RGE_EVENT, {
+        {"startTime", entry_init("REC::Event::startTime", FLOAT)}
+    }},
     {RGE_RECPARTICLE, {
         {"pid",     entry_init("REC::Particle::pid",     INT)},
         {"vx",      entry_init("REC::Particle::vx",      FLOAT)},

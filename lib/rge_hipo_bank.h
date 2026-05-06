@@ -40,6 +40,7 @@ typedef long unsigned int luint;
 typedef long int lint;
 
 /** Definitions to refer to different hipo banks using strings. */
+#define RGE_EVENT           "REC::Event"
 #define RGE_RECPARTICLE     "REC::Particle"
 #define RGE_RECTRACK        "REC::Track"
 #define RGE_RECCALORIMETER  "REC::Calorimeter"

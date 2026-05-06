@@ -466,12 +466,13 @@ static int run(
     }
 
     // Associate banks to TTree.
-    rge_hipobank bpart = rge_hipobank_init(RGE_RECPARTICLE,     tree_in);
-    rge_hipobank btrk  = rge_hipobank_init(RGE_RECTRACK,        tree_in);
-    rge_hipobank btraj = rge_hipobank_init(RGE_RECTRAJ,        tree_in);
-    rge_hipobank bcal  = rge_hipobank_init(RGE_RECCALORIMETER,  tree_in);
-    rge_hipobank bchkv = rge_hipobank_init(RGE_RECCHERENKOV,    tree_in);
-    rge_hipobank bsci  = rge_hipobank_init(RGE_RECSCINTILLATOR, tree_in);
+    rge_hipobank bevent = rge_hipobank_init(RGE_EVENT,           tree_in);
+    rge_hipobank bpart  = rge_hipobank_init(RGE_RECPARTICLE,     tree_in);
+    rge_hipobank btrk   = rge_hipobank_init(RGE_RECTRACK,        tree_in);
+    rge_hipobank btraj  = rge_hipobank_init(RGE_RECTRAJ,         tree_in);
+    rge_hipobank bcal   = rge_hipobank_init(RGE_RECCALORIMETER,  tree_in);
+    rge_hipobank bchkv  = rge_hipobank_init(RGE_RECCHERENKOV,    tree_in);
+    rge_hipobank bsci   = rge_hipobank_init(RGE_RECSCINTILLATOR, tree_in);
     // Optional hipo banks
     rge_hipobank bfmt, bmcpart, bmcevent;
     if (fmt_nlayers != 0)
@@ -619,6 +620,9 @@ static int run(
             double chi2 = rge_get_double(&btrk,  "chi2",   pos);
             double ndf  = rge_get_double(&btrk,  "NDF",    pos);
 
+            //Get start time of the event
+            double start_time = rge_get_double(&bevent, "startTime", 0);
+
             // Assign PID.
             if (rge_set_pid(
                     &part_trigger, rge_get_double(&bpart, "pid", pindex),
@@ -633,8 +637,8 @@ static int run(
             // Fill TNtuple with trigger electron information.
             Float_t arr[RGE_VARS_SIZE];
             if (rge_fill_ntuples_arr(
-                    arr, part_trigger, part_trigger, run_no, event, status,
-                    energy_beam, chi2, ndf, energy_PCAL, energy_ECIN,
+                    arr, part_trigger, part_trigger, run_no, event, start_time,
+                    status, energy_beam, chi2, ndf, energy_PCAL, energy_ECIN,
                     energy_ECOU, tof, path, nphe_LTCC, nphe_HTCC, PCAL_U,
                     PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;
@@ -722,11 +726,14 @@ static int run(
             // status del banco de particulas
             int status = rge_get_double(&bpart, "status", pindex);
 
+            //Get start time of the event
+            double start_time = rge_get_double(&bevent, "startTime", 0);
+
             // Llamamos a la funcion de llenado.
             // Nota: Pasamos photon_part como la particula, y part_trigger (el electron) como referencia
             if (rge_fill_ntuples_arr(
-                    arr, photon_part, part_trigger, run_no, event, status, energy_beam,
-                    -100.0, -100.0, energy_PCAL, energy_ECIN, energy_ECOU, tof,
+                    arr, photon_part, part_trigger, run_no, event, start_time, status,
+                     energy_beam, -100.0, -100.0, energy_PCAL, energy_ECIN, energy_ECOU, tof,
                     path, 0, 0, PCAL_U, PCAL_V, PCAL_W, -999, -999, -999 // No Cherenkov para fotones
             )) continue;
 
@@ -795,6 +802,9 @@ static int run(
             double chi2 = rge_get_double(&btrk,  "chi2",   pos);
             double ndf  = rge_get_double(&btrk,  "NDF",    pos);
 
+            //Get start time of the event
+            double start_time = rge_get_double(&bevent, "startTime", 0);
+
             // Assign PID.
             if (rge_set_pid(
                     &part, rge_get_double(&bpart, "pid", pindex), status,
@@ -807,8 +817,8 @@ static int run(
             //     RGE_VARS.
             Float_t arr[RGE_VARS_SIZE];
             if (rge_fill_ntuples_arr(
-                    arr, part, part_trigger, run_no, event, status, energy_beam,
-                    chi2, ndf, energy_PCAL, energy_ECIN, energy_ECOU, tof,
+                    arr, part, part_trigger, run_no, event, start_time, status,
+                    energy_beam, chi2, ndf, energy_PCAL, energy_ECIN, energy_ECOU, tof,
                     path, nphe_LTCC, nphe_HTCC, PCAL_U,
                     PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;

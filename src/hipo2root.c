@@ -57,13 +57,13 @@ static const char *USAGE_MESSAGE =
 "    lib/rge_hipo_bank.h file.\n";
 
 /** Number of banks in BANKLIST. */
-static const uint NBANKS       = 9;
-static const uint NBANKS_NOFMT_NOMC = 6;
-static const uint NBANKS_NOFMT_WITHMC = 8;
-static const uint NBANKS_WITHFMT_NOMC = 7;
+static const uint NBANKS       = 10;
+static const uint NBANKS_NOFMT_NOMC = 7;
+static const uint NBANKS_NOFMT_WITHMC = 9;
+static const uint NBANKS_WITHFMT_NOMC = 8;
 /** List of banks hipo2root is capable of processing. */
 std::vector<std::string> BANKVECTOR = {
-    RGE_RECPARTICLE, RGE_RECTRACK, RGE_RECCALORIMETER, RGE_RECCHERENKOV,
+    RGE_EVENT, RGE_RECPARTICLE, RGE_RECTRACK, RGE_RECCALORIMETER, RGE_RECCHERENKOV,
     RGE_RECSCINTILLATOR, RGE_RECTRAJ
 };
 /** run() function of the program. Check USAGE_MESSAGE for details. */
