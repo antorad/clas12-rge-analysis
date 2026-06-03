@@ -363,35 +363,35 @@ static int run(
         lint fmt_nlayers, bool fmt_cut, bool save_MC, lint n_events, int run_no,
         double energy_beam
 ) {
-    // Get sampling fraction.
-    char sampling_fraction_file[PATH_MAX];
-    if (run_no / 1000 != 999) {
-        // Input file is data.
-        sprintf(
-                sampling_fraction_file, "%s/sf_params_%06d.txt",
-                data_dir, run_no
-        );
-    }
-    else {
-        // Input file is simulation.
-        sprintf(sampling_fraction_file, "%s/sf_params_mc.txt", data_dir);
-    }
-    double sampling_fraction_params[RGE_NSECTORS][RGE_NSFPARAMS][2];
-    if (access(sampling_fraction_file, F_OK) != 0) {
-        // No sampling fraction file for this run, we need to extract it.
-        printf(
-                "No sampling fraction data found for run %d. Running "
-                "extract_sf().\n", run_no
-        );
-        if (rge_extract_sf(filename_in, work_dir, data_dir, n_events, run_no)) {
-            return 1;
-        }
-        printf("Done!\n\n");
-        rge_errno = RGEERR_UNDEFINED;
-    }
-    if (rge_get_sf_params(sampling_fraction_file, sampling_fraction_params)) {
-        return 1;
-    }
+    //// Get sampling fraction.
+    //char sampling_fraction_file[PATH_MAX];
+    //if (run_no / 1000 != 999) {
+    //    // Input file is data.
+    //    sprintf(
+    //            sampling_fraction_file, "%s/sf_params_%06d.txt",
+    //            data_dir, run_no
+    //    );
+    //}
+    //else {
+    //    // Input file is simulation.
+    //    sprintf(sampling_fraction_file, "%s/sf_params_mc.txt", data_dir);
+    //}
+    //double sampling_fraction_params[RGE_NSECTORS][RGE_NSFPARAMS][2];
+    //if (access(sampling_fraction_file, F_OK) != 0) {
+    //    // No sampling fraction file for this run, we need to extract it.
+    //    printf(
+    //            "No sampling fraction data found for run %d. Running "
+    //            "extract_sf().\n", run_no
+    //    );
+    //    if (rge_extract_sf(filename_in, work_dir, data_dir, n_events, run_no)) {
+    //        return 1;
+    //    }
+    //    printf("Done!\n\n");
+    //    rge_errno = RGEERR_UNDEFINED;
+    //}
+    //if (rge_get_sf_params(sampling_fraction_file, sampling_fraction_params)) {
+    //    return 1;
+    //}
 
     // Access input file.
     TFile *file_in  = TFile::Open(filename_in, "READ");
@@ -583,11 +583,11 @@ static int run(
             if (!part_trigger.is_valid) continue;
 
             // Cut triggers outside of FMT's active region.
-            if (fmt_cut) {
-                int result = apply_fmtgeomtry_cut(&part_trigger);
-                if (result == 1) continue;
-                if (result == 2) return 1;
-            }
+            //if (fmt_cut) {
+            //    int result = apply_fmtgeomtry_cut(&part_trigger);
+            //    if (result == 1) continue;
+            //    if (result == 2) return 1;
+            //}
 
             // Get energy deposited in calorimeters.
             double energy_PCAL, energy_ECIN, energy_ECOU;
@@ -626,10 +626,7 @@ static int run(
 
             // Assign PID.
             if (rge_set_pid(
-                    &part_trigger, rge_get_double(&bpart, "pid", pindex),
-                    status, energy_PCAL+energy_ECIN+energy_ECOU, energy_PCAL,
-                    nphe_HTCC, nphe_LTCC,
-                    sampling_fraction_params[rge_get_uint(&btrk, "sector", pos)]
+                    &part_trigger, rge_get_double(&bpart, "pid", pindex), status
             )) return 1;
 
             // Skip particle if its not the trigger electron.
@@ -808,10 +805,7 @@ static int run(
 
             // Assign PID.
             if (rge_set_pid(
-                    &part, rge_get_double(&bpart, "pid", pindex), status,
-                    energy_PCAL + energy_ECIN + energy_ECOU, energy_PCAL,
-                    nphe_HTCC, nphe_LTCC,
-                    sampling_fraction_params[rge_get_uint(&btrk, "sector", pos)]
+                    &part, rge_get_double(&bpart, "pid", pindex), status
             )) return 1;
 
             // Fill TNtuples. If adding new variables, check their order in

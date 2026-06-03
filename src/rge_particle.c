@@ -51,66 +51,66 @@ rge_particle particle_init(
     return p;
 }
 
-int assign_neutral_pid(double energy, double beta) {
-    return beta < NEUTRON_MAXBETA ? 2112 : (energy > PHOTON_MINENERGY ? 22 : 0);
-}
+//int assign_neutral_pid(double energy, double beta) {
+//    return beta < NEUTRON_MAXBETA ? 2112 : (energy > PHOTON_MINENERGY ? 22 : 0);
+//}
 
-bool is_electron(
-        double total_energy, double pcal_energy, double htcc_nphe, double p,
-        double pars[RGE_NSFPARAMS][2]
-) {
-    // Require ECAL.
-    if (total_energy < 1e-9) return false;
-    // Momentum must be greater than 0.
-    if (p < 1e-9) return false;
-    // Require HTCC photoelectrons.
-    if (htcc_nphe < HTCC_NPHE_CUT) return false;
-    // Require PCAL.
-    if (pcal_energy < MIN_PCAL_ENERGY) return false;
+//bool is_electron(
+//        double total_energy, double pcal_energy, double htcc_nphe, double p,
+//        double pars[RGE_NSFPARAMS][2]
+//) {
+//    // Require ECAL.
+//    if (total_energy < 1e-9) return false;
+//    // Momentum must be greater than 0.
+//    if (p < 1e-9) return false;
+//    // Require HTCC photoelectrons.
+//    if (htcc_nphe < HTCC_NPHE_CUT) return false;
+//    // Require PCAL.
+//    if (pcal_energy < MIN_PCAL_ENERGY) return false;
+//
+//    // Require ECAL sampling fraction to be below threshold.
+//    double mean = pars[0][0] * (
+//            pars[1][0] +
+//            pars[2][0] / total_energy +
+//            pars[3][0] / (total_energy*total_energy)
+//    );
+//    double sigma = pars[0][1] * (
+//            pars[1][1] +
+//            pars[2][1] / total_energy +
+//            pars[3][1] / (total_energy*total_energy)
+//    );
+//
+//    if (fabs((total_energy/p - mean)/sigma) > E_SF_NSIGMA) return false;
+//
+//    return true;
+//}
 
-    // Require ECAL sampling fraction to be below threshold.
-    double mean = pars[0][0] * (
-            pars[1][0] +
-            pars[2][0] / total_energy +
-            pars[3][0] / (total_energy*total_energy)
-    );
-    double sigma = pars[0][1] * (
-            pars[1][1] +
-            pars[2][1] / total_energy +
-            pars[3][1] / (total_energy*total_energy)
-    );
-
-    if (fabs((total_energy/p - mean)/sigma) > E_SF_NSIGMA) return false;
-
-    return true;
-}
-
-int match_pid(
-        int *pid, int hypothesis, bool recon_match, bool electron_check,
-        bool htcc_signal_check, bool htcc_pion_threshold
-) {
-    switch(abs(hypothesis)) {
-        case 11:
-            if (recon_match || electron_check) *pid = hypothesis;
-            break;
-        case 211:
-            if (recon_match || (
-                    !electron_check &&
-                    htcc_signal_check &&
-                    htcc_pion_threshold
-            )) {
-                *pid = hypothesis;
-            }
-            break;
-        case 321: case 2212: case 45: case 2112: case 22: case 13: case -13:
-            if (recon_match) *pid = hypothesis;
-            break;
-        default:
-            rge_errno = RGEERR_UNSUPPORTEDPID;
-            return 1;
-    }
-    return 0;
-}
+//int match_pid(
+//        int *pid, int hypothesis, bool recon_match, bool electron_check,
+//        bool htcc_signal_check, bool htcc_pion_threshold
+//) {
+//    switch(abs(hypothesis)) {
+//        case 11:
+//            if (recon_match || electron_check) *pid = hypothesis;
+//            break;
+//        case 211:
+//            if (recon_match || (
+//                    !electron_check &&
+//                    htcc_signal_check &&
+//                    htcc_pion_threshold
+//            )) {
+//                *pid = hypothesis;
+//            }
+//            break;
+//        case 321: case 2212: case 45: case 2112: case 22: case 13: case -13:
+//            if (recon_match) *pid = hypothesis;
+//            break;
+//        default:
+//            rge_errno = RGEERR_UNSUPPORTEDPID;
+//            return 1;
+//    }
+//    return 0;
+//}
 
 double theta_lab(rge_particle p) {
     if (abs(p.px) + abs(p.py) + abs(p.pz) < 1e-9) return 0;
@@ -261,15 +261,13 @@ rge_particle rge_particle_init(
 }
 
 int rge_set_pid(
-        rge_particle *particle, int recon_pid, int status, double total_energy,
-        double pcal_energy, int htcc_nphe, int ltcc_nphe,
-        double sf_params[RGE_NSFPARAMS][2]
+        rge_particle *particle, int recon_pid, int status
 ) {
     // Assign PID for neutrals and store PID from reconstruction for charged
     //         particles.
-    if (particle->charge == 0) {
-        recon_pid = assign_neutral_pid(total_energy, particle->beta);
-    }
+    //if (particle->charge == 0) {
+    //    recon_pid = assign_neutral_pid(total_energy, particle->beta);
+    //}
 
 /*
     // Create PID list.

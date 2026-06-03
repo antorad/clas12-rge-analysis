@@ -122,10 +122,10 @@ static int assign_neutral_pid(double energy, double beta);
  * If all requirements are met, the function returns true. Otherwise, it returns
  *     false.
  */
-static bool is_electron(
-        double total_energy, double pcal_energy, double htcc_nphe, double p,
-        double pars[RGE_NSFPARAMS][2]
-);
+//static bool is_electron(
+//        double total_energy, double pcal_energy, double htcc_nphe, double p,
+//        double pars[RGE_NSFPARAMS][2]
+//);
 
 /**
  * Based on criteria defined in rge_set_pid, match PID hypothesis with available
@@ -140,10 +140,10 @@ static bool is_electron(
  * @param htcc_pion_threshold : True if momentum is above HTCC_PION_THRESHOLD.
  * @return                    : PID if hypothesis matches criteria, 0 otherwise.
  */
-static int match_pid(
-        int *pid, int hypothesis, bool recon_match, bool electron_check,
-        bool htcc_signal_check, bool htcc_pion_threshold
-);
+//static int match_pid(
+//        int *pid, int hypothesis, bool recon_match, bool electron_check,
+//        bool htcc_signal_check, bool htcc_pion_threshold
+//);
 
 /** Compute theta angle in lab frame from the vertex momentum of a particle. */
 static double theta_lab(rge_particle particle);
@@ -234,9 +234,7 @@ rge_particle rge_particle_init(
  * @return             : error code.
  */
 int rge_set_pid(
-        rge_particle *particle, int recon_pid, int status, double total_energy,
-        double pcal_energy, int htcc_nphe, int ltcc_nphe,
-        double sf_params[RGE_NSFPARAMS][2]
+        rge_particle *particle, int recon_pid, int status
 );
 
 /**
