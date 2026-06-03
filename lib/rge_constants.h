@@ -40,7 +40,7 @@ typedef struct {
 
 // --+ library +----------------------------------------------------------------
 /** Data tree name used by various programs. */
-#define RGE_TREENAMEDATA "data"
+#define RGE_TREENAMEDATA "DT"
 #define RGE_MCTREENAME "MC"
 /** Detector constants. */
 #define RGE_NSECTORS     6 /** # of CLAS12 sectors. */
@@ -72,13 +72,13 @@ const RGE_VAR RGE_PID    = {.addr =  4, .name = "pid"};
 const RGE_VAR RGE_CHARGE = {.addr =  5, .name = "charge"}; // Unit: e
 const RGE_VAR RGE_STATUS = {.addr =  6, .name = "status"};
 const RGE_VAR RGE_MASS   = {.addr =  7, .name = "mass"}; // Unit: GeV
-const RGE_VAR RGE_VX     = {.addr =  8, .name = "v_x"}; // Unit: cm
-const RGE_VAR RGE_VY     = {.addr =  9, .name = "v_y"}; // Unit: cm
-const RGE_VAR RGE_VZ     = {.addr = 10, .name = "v_z"}; // Unit: cm
-const RGE_VAR RGE_VT     = {.addr = 11, .name = "v_t"}; // Unit: ns
-const RGE_VAR RGE_PX     = {.addr = 12, .name = "p_x"}; // Unit: GeV
-const RGE_VAR RGE_PY     = {.addr = 13, .name = "p_y"}; // Unit: GeV
-const RGE_VAR RGE_PZ     = {.addr = 14, .name = "p_z"}; // Unit: GeV
+const RGE_VAR RGE_VX     = {.addr =  8, .name = "vx"}; // Unit: cm
+const RGE_VAR RGE_VY     = {.addr =  9, .name = "vy"}; // Unit: cm
+const RGE_VAR RGE_VZ     = {.addr = 10, .name = "vz"}; // Unit: cm
+const RGE_VAR RGE_VT     = {.addr = 11, .name = "vt"}; // Unit: ns
+const RGE_VAR RGE_PX     = {.addr = 12, .name = "px"}; // Unit: GeV
+const RGE_VAR RGE_PY     = {.addr = 13, .name = "py"}; // Unit: GeV
+const RGE_VAR RGE_PZ     = {.addr = 14, .name = "pz"}; // Unit: GeV
 const RGE_VAR RGE_P      = {.addr = 15, .name = "p"}; // Unit: GeV
 const RGE_VAR RGE_THETA  = {.addr = 16, .name = "theta"}; // Unit: rad
 const RGE_VAR RGE_PHI    = {.addr = 17, .name = "phi"};  // Unit: rad
