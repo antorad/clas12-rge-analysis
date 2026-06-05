@@ -51,7 +51,6 @@ HXX         := $(RXX) $(HIPOCFLAGS)
 # Objects.
 OBJS := $(BLD)/constants.o \
 		$(BLD)/err_handler.o \
-		$(BLD)/extract_sf.o \
 		$(BLD)/file_handler.o \
 		$(BLD)/filename_handler.o \
 		$(BLD)/hipo_bank.o \
@@ -62,10 +61,7 @@ OBJS := $(BLD)/constants.o \
 		$(BLD)/progress.o
 
 # Executables.
-BINS := $(BIN)/acc_corr \
-		$(BIN)/draw_plots \
-		$(BIN)/extract_sf \
-		$(BIN)/hipo2root \
+BINS := $(BIN)/hipo2root \
 		$(BIN)/make_ntuples
 
 # Targets.
