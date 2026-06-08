@@ -43,22 +43,19 @@ done
 echo "--- Processing run: $RUN_NUMBER with target: $TARGET and $LABEL banks ---"
 
 # Directories necessary
-HIPO_DIR="/cache/clas12/rg-e/production/spring2024/pass1/torus-1/${TARGET}_D2/dst/recon/"
+echo "Processing RUN_NUMBER: $RUN_NUMBER"
+HIPO_DIR="run_${RUN_NUMBER}"
 OUT_DIR="/volatile/clas12/antorad/rge/data/pass1/${TARGET}_D2/"
 mkdir -p $OUT_DIR
-
-# Iterate over each subdirectory in the run list
-echo "Processing RUN_NUMBER: $RUN_NUMBER"
-SUBDIR=$HIPO_DIR/$RUN_NUMBER
 
 # Create a separate work dir for each run in the list
 WORK_DIR=root_io/data/${LABEL}/$RUN_NUMBER
 mkdir -p $WORK_DIR
 
-if [ -d "$SUBDIR" ]; then
-    echo "Checking directory: $SUBDIR"
+if [ -d "$HIPO_DIR" ]; then
+    echo "Checking directory: $HIPO_DIR"
     # Find all files with the subdirectory
-    FILES=($(find "$SUBDIR" -maxdepth 1 -type f -name "*"))
+    FILES=($(find "$HIPO_DIR" -maxdepth 1 -type f -name "*"))
     FILE_COUNT=0
     # Process files based on the flag
     for FILE in "${FILES[@]}"; do
@@ -90,5 +87,5 @@ if [ -d "$SUBDIR" ]; then
     mv $WORK_DIR/*_banks.root $OUT_DIR/$LABEL/banks_root_files/$RUN_NUMBER
     rm -rf $WORK_DIR
 else
-    echo "Directory $SUBDIR does not exist."
+    echo "Directory $HIPO_DIR does not exist."
 fi
