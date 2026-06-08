@@ -12,14 +12,10 @@ swif2 create $WORKFLOW_NAME
 while read -r RUN_NUMBER; do
     INPUT_CMD=""
     for mss_path in $(ls /mss/clas12/rg-e/production/spring2024/pass1/torus-1/${TARGET}_D2/dst/recon/$RUN_NUMBER/*); do
-        # Get the filename
         FILENAME=$(basename "$mss_path")
-        # Convert /mss/ to /cache/ for SWIF2
-        CACHE_PATH=$(echo "$mss_path" | sed 's|/mss/|/cache/|')
         # Append an -input flag for EVERY file to the command string
-        INPUT_CMD="$INPUT_CMD -input ${CACHE_PATH}"
+        INPUT_CMD="$INPUT_CMD -input run_${RUN_NUMBER}/${FILENAME} mss:${mss_path}"
     done
-
     swif2 add-job $WORKFLOW_NAME \
         -name run_$RUN_NUMBER \
         -partition production \
@@ -28,7 +24,7 @@ while read -r RUN_NUMBER; do
         -disk 100g \
         -shell /bin/bash \
         $INPUT_CMD \
-        "cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./make_root_files_wf.sh -a -b $BANKS -r $RUN_NUMBER -t $TARGET"
+        " cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./make_root_files_wf.sh -a -b $BANKS -r $RUN_NUMBER -t $TARGET"
 
 done < runs/runs_inb_${TARGET}_D2_1.txt
 
