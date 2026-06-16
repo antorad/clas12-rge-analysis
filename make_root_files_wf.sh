@@ -6,7 +6,6 @@ echo "--- Running: make_root_files_wf ---"
 module use /scigroup/cvmfs/hallb/clas12/sw/modulefiles
 module load clas12
 export ROOT=/u/scigroup/cvmfs/hallb/clas12/sw/almalinux9-gcc11/local/root/6.36.04/
-cd /work/clas12/rg-e/antorad/clas12-rge-analysis
 
 # Programs directories
 HIPO2ROOT="./bin/hipo2root" #hipo2root bruno
@@ -44,7 +43,7 @@ echo "--- Processing run: $RUN_NUMBER with target: $TARGET and $LABEL banks ---"
 
 # Directories necessary
 echo "Processing RUN_NUMBER: $RUN_NUMBER"
-HIPO_DIR="run_${RUN_NUMBER}"
+HIPO_DIR="/cache/clas12/rg-e/production/spring2024/pass1/torus-1/${TARGET}_D2/dst/recon/${RUN_NUMBER}/"
 OUT_DIR="/volatile/clas12/antorad/rge/data/pass1/${TARGET}_D2/"
 mkdir -p $OUT_DIR
 
