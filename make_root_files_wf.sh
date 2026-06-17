@@ -8,8 +8,8 @@ module load clas12
 export ROOT=/u/scigroup/cvmfs/hallb/clas12/sw/almalinux9-gcc11/local/root/6.36.04/
 
 # Programs directories
-HIPO2ROOT="./bin/hipo2root" #hipo2root bruno
-MAKENTUPLES="./bin/make_ntuples" #makentuples
+HIPO2ROOT="/work/clas12/rg-e/antorad/clas12-rge-analysis/bin/hipo2root" #hipo2root bruno
+MAKENTUPLES="/work/clas12/rg-e/antorad/clas12-rge-analysis/bin/make_ntuples" #makentuples
 
 # Define default flags (set to true to process all, false to process a fixed number)
 NUM_FILES_TO_PROCESS=3
@@ -43,7 +43,7 @@ echo "--- Processing run: $RUN_NUMBER with target: $TARGET and $LABEL banks ---"
 
 # Directories necessary
 echo "Processing RUN_NUMBER: $RUN_NUMBER"
-HIPO_DIR="/cache/clas12/rg-e/production/spring2024/pass1/torus-1/${TARGET}_D2/dst/recon/${RUN_NUMBER}/"
+HIPO_DIR="run_${RUN_NUMBER}/"
 OUT_DIR="/volatile/clas12/antorad/rge/data/pass1/${TARGET}_D2/"
 mkdir -p $OUT_DIR
 

@@ -21,10 +21,10 @@ while read -r RUN_NUMBER; do
         -partition production \
         -time 20h \
         -ram 2g \
-        -disk 100g \
+        -disk 3000g \
         -shell /bin/bash \
         $INPUT_CMD \
-        "cd /work/clas12/rg-e/antorad/clas12-rge-analysis && ./make_root_files_wf.sh -a -b $BANKS -r $RUN_NUMBER -t $TARGET"
+        "/work/clas12/rg-e/antorad/clas12-rge-analysis/make_root_files_wf.sh -a -b $BANKS -r $RUN_NUMBER -t $TARGET"
 
 done < runs/runs_inb_${TARGET}_D2_1.txt
 
