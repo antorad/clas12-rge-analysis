@@ -753,6 +753,11 @@ static int run(
                 continue;
             }
 
+            // Omit particles with pid=0
+            if (rge_get_double(&bpart, "pid", pindex)==0){
+                continue;
+            }
+
             // Get reconstructed particle from DC and from FMT.
             rge_particle part = rge_particle_init(
                 &bpart, &btrk, &bfmt, pos, fmt_nlayers
