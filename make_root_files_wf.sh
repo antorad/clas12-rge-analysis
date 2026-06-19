@@ -84,7 +84,7 @@ if [ -d "$HIPO_DIR" ]; then
     mkdir -p $OUT_DIR/$LABEL/banks_root_files/$RUN_NUMBER
     mv $WORK_DIR/ntuples_${LABEL}_$RUN_NUMBER.root $OUT_DIR/$LABEL/ntuple_files
     mv $WORK_DIR/*_banks.root $OUT_DIR/$LABEL/banks_root_files/$RUN_NUMBER
-    rm -rf $WORK_DIR
+    #rm -rf $WORK_DIR
 else
     echo "Directory $HIPO_DIR does not exist."
 fi
