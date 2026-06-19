@@ -56,7 +56,7 @@ typedef struct {
 #define RGE_VZHIGHCUT   26.1197 /** vz must be below this. */
 
 /** Variable array data. */
-#define RGE_VARS_SIZE 47
+#define RGE_VARS_SIZE 49
 extern const char *RGE_VARS[RGE_VARS_SIZE];
 #define RGE_MC_VARS_SIZE 34
 extern const char *RGE_MC_VARS[RGE_MC_VARS_SIZE];
@@ -103,28 +103,30 @@ const RGE_VAR RGE_TOTE  = {.addr = 29, .name = "E_total"}; // Unit: GeV
 const RGE_VAR RGE_PCALU    = {.addr = 30, .name = "PCAL_U"}; // Unit: GeV
 const RGE_VAR RGE_PCALV    = {.addr = 31, .name = "PCAL_V"}; // Unit: cm
 const RGE_VAR RGE_PCALW    = {.addr = 32, .name = "PCAL_W"}; // Unit: cm
+const RGE_VAR RGE_TIMECAL = {.addr = 33, .name = "time_cal"}; // Unit: ns
+const RGE_VAR RGE_PATHCAL = {.addr = 34, .name = "path_cal"}; // Unit: cm
 
 /** Scintillator variables. */
-const RGE_VAR RGE_TOF = {.addr = 33, .name = "TOF"}; // Unit: ns
-const RGE_VAR RGE_PATH = {.addr = 34, .name = "path"}; // Unit: cm
+const RGE_VAR RGE_TIMETOF = {.addr = 35, .name = "time_tof"}; // Unit: ns
+const RGE_VAR RGE_PATHTOF = {.addr = 36, .name = "path_tof"}; // Unit: cm
 
 /** Cherenkov counters variables. */
-const RGE_VAR RGE_NPHELTCC = {.addr = 35, .name = "Nphe_LTCC"};
-const RGE_VAR RGE_NPHEHTCC = {.addr = 36, .name = "Nphe_HTCC"};
+const RGE_VAR RGE_NPHELTCC = {.addr = 37, .name = "Nphe_LTCC"};
+const RGE_VAR RGE_NPHEHTCC = {.addr = 38, .name = "Nphe_HTCC"};
 
 /** DIS variables. */
-const RGE_VAR RGE_Q2 = {.addr = 37, .name = "Q2"}; // Unit: GeV^2
-const RGE_VAR RGE_NU = {.addr = 38, .name = "nu"}; // Unit: GeV
-const RGE_VAR RGE_XB = {.addr = 39, .name = "x_bjorken"};
-const RGE_VAR RGE_YB = {.addr = 40, .name = "y_bjorken"};
-const RGE_VAR RGE_W2 = {.addr = 41, .name = "W2"}; // Unit: GeV
+const RGE_VAR RGE_Q2 = {.addr = 39, .name = "Q2"}; // Unit: GeV^2
+const RGE_VAR RGE_NU = {.addr = 40, .name = "nu"}; // Unit: GeV
+const RGE_VAR RGE_XB = {.addr = 41, .name = "x_bjorken"};
+const RGE_VAR RGE_YB = {.addr = 42, .name = "y_bjorken"};
+const RGE_VAR RGE_W2 = {.addr = 43, .name = "W2"}; // Unit: GeV
 
 /** SIDIS variables. */
-const RGE_VAR RGE_ZH      = {.addr = 42, .name = "z_h"};
-const RGE_VAR RGE_PT2     = {.addr = 43, .name = "p_T2"}; // Unit: GeV^2
-const RGE_VAR RGE_PL2     = {.addr = 44, .name = "p_L2"}; // Unit: GeV^2
-const RGE_VAR RGE_PHIPQ   = {.addr = 45, .name = "phi_PQ"}; // Unit: rad
-const RGE_VAR RGE_THETAPQ = {.addr = 46, .name = "theta_PQ"}; // Unit: rad
+const RGE_VAR RGE_ZH      = {.addr = 44, .name = "z_h"};
+const RGE_VAR RGE_PT2     = {.addr = 45, .name = "p_T2"}; // Unit: GeV^2
+const RGE_VAR RGE_PL2     = {.addr = 46, .name = "p_L2"}; // Unit: GeV^2
+const RGE_VAR RGE_PHIPQ   = {.addr = 47, .name = "phi_PQ"}; // Unit: rad
+const RGE_VAR RGE_THETAPQ = {.addr = 48, .name = "theta_PQ"}; // Unit: rad
 
 /** MC variables */
 const RGE_VAR RGE_MC_RUNNO   = {.addr = 0, .name = "run_num"};

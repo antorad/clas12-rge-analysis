@@ -26,7 +26,7 @@ const char *RGE_VARS[RGE_VARS_SIZE] = {
         RGE_DCR1EDGE.name, RGE_DCR2EDGE.name, RGE_DCR3EDGE.name,
         RGE_PCALE.name, RGE_ECINE.name, RGE_ECOUE.name, RGE_TOTE.name,
         RGE_PCALU.name, RGE_PCALV.name, RGE_PCALW.name,
-        RGE_TOF.name, RGE_PATH.name,
+        RGE_TIMECAL.name, RGE_PATHCAL.name, RGE_TIMETOF.name, RGE_PATHTOF.name,
         RGE_NPHELTCC.name, RGE_NPHEHTCC.name,
         RGE_Q2.name, RGE_NU.name, RGE_XB.name, RGE_YB.name, RGE_W2.name,
         RGE_ZH.name, RGE_PT2.name, RGE_PL2.name, RGE_PHIPQ.name,

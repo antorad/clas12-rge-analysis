@@ -311,7 +311,8 @@ int rge_set_pid(
 int rge_fill_ntuples_arr(
         Float_t *arr, rge_particle p, rge_particle e, int run_no, int evn,
         double start_time, int status, double beam_E, float chi2, float ndf,
-        double pcal_energy, double ecin_E, double ecou_E, double tof, double path,
+        double pcal_energy, double ecin_E, double ecou_E,
+        double time_tof, double path_tof, double time_cal, double path_cal,
         int nphe_ltcc, int nphe_htcc, double PCAL_U, double PCAL_V, double PCAL_W,
         double DC_R1_edge, double DC_R2_edge, double DC_R3_edge
 ) {
@@ -357,10 +358,12 @@ int rge_fill_ntuples_arr(
     arr[RGE_PCALU.addr] = PCAL_U;
     arr[RGE_PCALV.addr] = PCAL_V;
     arr[RGE_PCALW.addr] = PCAL_W;
+    arr[RGE_TIMECAL.addr] = time_cal;
+    arr[RGE_PATHCAL.addr] = path_cal;
 
     // Scintillator.
-    arr[RGE_TOF.addr] = tof;
-    arr[RGE_PATH.addr] = path;
+    arr[RGE_TIMETOF.addr] = time_tof;
+    arr[RGE_PATHTOF.addr] = path_tof;
 
     // Cherenkov.
     arr[RGE_NPHELTCC.addr] = nphe_ltcc;

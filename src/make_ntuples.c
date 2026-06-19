@@ -84,14 +84,17 @@ static const double FMTCUT_ANGLE = 57.29;
  * @return             : the most accurate TOF available in the scintillator and
  *                       calorimeter banks.
  */
-static double get_tof(
-        rge_hipobank *scintillator, rge_hipobank *calorimeter, uint pindex, double *path
+static void get_time_path(
+        rge_hipobank *scintillator, rge_hipobank *calorimeter, uint pindex,
+        double *time_tof, double *path_tof, double *time_cal, double *path_cal
 ) {
     int    most_precise_lyr = 0;
-    double tof              = INFINITY;
-    *path                   = -1.;
+    *time_tof         = INFINITY;
+    *path_tof               = -1.;
+    *time_cal         = INFINITY;
+    *path_cal               = -1.;
 
-    // Find TOF from scintillator.
+    // Find TOF and path from scintillator.
     for (uint i = 0; i < scintillator->nrows; ++i) {
         // Filter out incorrect pindex and hits not from FTOF.
         if (
@@ -103,13 +106,13 @@ static double get_tof(
 
         uint layer  = rge_get_uint(scintillator, "layer", i);
         double time = rge_get_double(scintillator, "time", i);
-        double path_ly = rge_get_double(scintillator, "path", i);
+        double path = rge_get_double(scintillator, "path", i);
 
         // Check FTOF 1B (most precise FTOF layer).
         if (layer == FTOF1B_LYR) {
             most_precise_lyr = FTOF1B_LYR;
-            tof = time;
-            *path = path_ly;
+            *time_tof = time;
+            *path_tof = path;
             break; // Things won't get better than this.
         }
 
@@ -117,8 +120,8 @@ static double get_tof(
         else if (layer == FTOF1A_LYR) {
             if (most_precise_lyr == FTOF1A_LYR) continue;
             most_precise_lyr = FTOF1A_LYR;
-            tof = time;
-            *path = path_ly;
+            *time_tof = time;
+            *path_tof = path;
         }
 
         // Check FTOF 2.
@@ -126,26 +129,25 @@ static double get_tof(
             // We already have a similar or better hit.
             if (most_precise_lyr != 0) continue;
             most_precise_lyr = FTOF2_LYR;
-            tof = time;
-            *path = path_ly;
+            *time_tof = time;
+            *path_tof = path;
         }
     }
-    if (most_precise_lyr != 0) return tof;
 
-    // If no hits from FTOF were found, try to find TOF from calorimeters.
+    // Find TOF and path from calorimeters.
     for (uint i = 0; i < calorimeter->nrows; ++i) {
         // Filter out incorrect pindex.
         if (rge_get_uint(calorimeter, "pindex", i) != pindex) continue;
 
-        // Check PCAL (Calorimeter with the most precise TOF).
         uint layer  = rge_get_uint(calorimeter, "layer", i);
         double time = rge_get_double(calorimeter, "time", i);
-        double path_ly = rge_get_double(calorimeter, "path", i);
+        double path = rge_get_double(calorimeter, "path", i);
         
+        // Check PCAL (Calorimeter with the most precise time).
         if (layer == PCAL_LYR) {
             most_precise_lyr = 10 + PCAL_LYR;
-            tof = time;
-            *path = path_ly;
+            *time_cal = time;
+            *path_cal = path;
             break; // Things won't get better than this.
         }
 
@@ -153,20 +155,18 @@ static double get_tof(
         else if (layer == ECIN_LYR) {
             if (most_precise_lyr == 10 + ECIN_LYR) continue;
             most_precise_lyr = 10 + ECIN_LYR;
-            tof = time;
-            *path = path_ly;
+            *time_cal = time;
+            *path_cal = path;
         }
 
         // Check ECOU.
         else if (layer == ECOU_LYR) {
             if (most_precise_lyr != 0) continue;
             most_precise_lyr = 10 + ECOU_LYR;
-            tof = time;
-            *path = path_ly;
+            *time_cal = time;
+            *path_cal = path;
         }
     }
-
-    return tof;
 }
 
 /**
@@ -613,8 +613,8 @@ static int run(
                 return 1;
 
             // Get time of flight from scintillators or calorimeters.
-            double path;
-            double tof = get_tof(&bsci, &bcal, pindex, &path);
+            double time_tof, path_tof, time_cal, path_cal;
+            get_time_path(&bsci, &bcal, pindex, &time_tof, &path_tof, &time_cal, &path_cal);
 
             // Get miscellaneous data.
             int status  = rge_get_double(&bpart, "status", pindex);
@@ -637,8 +637,8 @@ static int run(
             if (rge_fill_ntuples_arr(
                     arr, part_trigger, part_trigger, run_no, event, start_time,
                     status, energy_beam, chi2, ndf, energy_PCAL, energy_ECIN,
-                    energy_ECOU, tof, path, nphe_LTCC, nphe_HTCC, PCAL_U,
-                    PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
+                    energy_ECOU, time_tof, path_tof, time_cal, path_cal,
+                    nphe_LTCC, nphe_HTCC, PCAL_U, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;
 
             tree_out->Fill(arr);
@@ -647,7 +647,7 @@ static int run(
             trigger_exist  = true;
             trigger_pindex = pindex;
             trigger_pos    = pos;
-            trigger_tof    = tof;
+            trigger_tof    = time_tof;
             break;
         }
 
@@ -714,8 +714,8 @@ static int run(
 
             // 5. IDENTIFICACION DE FOTONES (Cortes de tiempo/beta)
             // Mineeva usa cortes de beta. Obtenemos el TOF.
-            double path;
-            double tof = get_tof(&bsci, &bcal, pindex, &path);
+            double time_tof, path_tof, time_cal, path_cal;
+            get_time_path(&bsci, &bcal, pindex, &time_tof, &path_tof, &time_cal, &path_cal);
             
             // 6. GUARDAR EN EL TREE
             // Usamos valores 'dummy' (0 o -1) para variables que solo tienen las trazas (chi2, ndf, etc)
@@ -731,8 +731,8 @@ static int run(
             // Nota: Pasamos photon_part como la particula, y part_trigger (el electron) como referencia
             if (rge_fill_ntuples_arr(
                     arr, photon_part, part_trigger, run_no, event, start_time, status,
-                     energy_beam, -100.0, -100.0, energy_PCAL, energy_ECIN, energy_ECOU, tof,
-                    path, 0, 0, PCAL_U, PCAL_V, PCAL_W, -999, -999, -999 // No Cherenkov para fotones
+                    energy_beam, -100.0, -100.0, energy_PCAL, energy_ECIN, energy_ECOU, time_tof,
+                    path_tof, time_cal, path_cal, 0, 0, PCAL_U, PCAL_V, PCAL_W, -999, -999, -999 // No Cherenkov para fotones
             )) continue;
 
             tree_out->Fill(arr);
@@ -792,8 +792,8 @@ static int run(
                 return 1;
 
             // Get time-of-flight (tof).
-            double path;
-            double tof = get_tof(&bsci, &bcal, pindex, &path);
+            double time_tof, path_tof, time_cal, path_cal;
+            get_time_path(&bsci, &bcal, pindex, &time_tof, &path_tof, &time_cal, &path_cal);
 
             // Get miscellaneous data.
             int status  = rge_get_double(&bpart, "status", pindex);
@@ -813,8 +813,8 @@ static int run(
             Float_t arr[RGE_VARS_SIZE];
             if (rge_fill_ntuples_arr(
                     arr, part, part_trigger, run_no, event, start_time, status,
-                    energy_beam, chi2, ndf, energy_PCAL, energy_ECIN, energy_ECOU, tof,
-                    path, nphe_LTCC, nphe_HTCC, PCAL_U,
+                    energy_beam, chi2, ndf, energy_PCAL, energy_ECIN, energy_ECOU,
+                    time_tof, path_tof, time_cal, path_cal, nphe_LTCC, nphe_HTCC, PCAL_U,
                     PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;
 
