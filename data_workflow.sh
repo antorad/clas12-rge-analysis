@@ -21,7 +21,6 @@ while read -r RUN_NUMBER; do
         -partition production \
         -time 20h \
         -ram 2g \
-        -disk 3000g \
         -shell /bin/bash \
         $INPUT_CMD \
         "/work/clas12/rg-e/antorad/clas12-rge-analysis/make_root_files_wf.sh -a -b $BANKS -r $RUN_NUMBER -t $TARGET"
