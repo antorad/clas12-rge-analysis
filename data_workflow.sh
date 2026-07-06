@@ -20,6 +20,7 @@ while read -r RUN_NUMBER; do
         -name run_$RUN_NUMBER \
         -partition production \
         -time 24h \
+        -disk-scratch 200g \
         -ram 4g \
         -shell /bin/bash \
         $INPUT_CMD \
