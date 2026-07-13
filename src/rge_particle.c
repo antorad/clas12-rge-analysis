@@ -243,8 +243,8 @@ rge_particle rge_particle_init(
     // Track reconstructed by FMT.
     if (fmttrack->nrows < 1) return particle_init();
     // Track crossed enough FMT layers.
-    if (rge_get_uint(fmttrack, "NDF", pos) < fmt_nlayers)
-        return particle_init();
+    // if (rge_get_uint(fmttrack, "NDF", pos) < fmt_nlayers)
+    //     return particle_init();
 
     return particle_init(
             rge_get_double(particle, "charge", pindex),
