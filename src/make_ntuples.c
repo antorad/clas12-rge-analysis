@@ -576,8 +576,8 @@ static int run(
             }
             
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
-            if (fmt_switch)
-                pindex = rge_get_uint(&bfmt, "pindex", pos);
+            // if (fmt_switch)
+            //     pindex = rge_get_uint(&bfmt, "pindex", pos);
 
             // Get reconstructed particle from DC and from FMT.
             part_trigger = rge_particle_init(
