@@ -636,7 +636,7 @@ static int run(
             Float_t arr[RGE_VARS_SIZE];
             if (rge_fill_ntuples_arr(
                     arr, part_trigger, part_trigger, run_no, event, start_time,
-                    status, energy_beam, chi2, ndf, energy_PCAL, energy_ECIN,
+                    status, energy_beam, chi2, fmt_nlayers, ndf, energy_PCAL, energy_ECIN,
                     energy_ECOU, time_tof, path_tof, time_cal, path_cal,
                     nphe_LTCC, nphe_HTCC, PCAL_U, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;
@@ -731,7 +731,7 @@ static int run(
             // Nota: Pasamos photon_part como la particula, y part_trigger (el electron) como referencia
             if (rge_fill_ntuples_arr(
                     arr, photon_part, part_trigger, run_no, event, start_time, status,
-                    energy_beam, -100.0, -100.0, energy_PCAL, energy_ECIN, energy_ECOU, time_tof,
+                    energy_beam, -100.0, -100.0, 0, energy_PCAL, energy_ECIN, energy_ECOU, time_tof,
                     path_tof, time_cal, path_cal, 0, 0, PCAL_U, PCAL_V, PCAL_W, -999, -999, -999 // No Cherenkov para fotones
             )) continue;
 
@@ -818,7 +818,7 @@ static int run(
             Float_t arr[RGE_VARS_SIZE];
             if (rge_fill_ntuples_arr(
                     arr, part, part_trigger, run_no, event, start_time, status,
-                    energy_beam, chi2, ndf, energy_PCAL, energy_ECIN, energy_ECOU,
+                    energy_beam, chi2, ndf, fmt_nlayers, energy_PCAL, energy_ECIN, energy_ECOU,
                     time_tof, path_tof, time_cal, path_cal, nphe_LTCC, nphe_HTCC, PCAL_U,
                     PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;
