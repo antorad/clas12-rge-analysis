@@ -243,7 +243,7 @@ int rge_set_pid(
  */
 int rge_fill_ntuples_arr(
         Float_t *arr, rge_particle p, rge_particle e, int run_no, int evn,
-        double start_time, int status, double beam_E, float chi2, float ndf,
+        double start_time, int status, double beam_E, float chi2, float ndf, int FMT_layers,
         double pcal_energy, double ecin_E, double ecou_E,
         double time_tof, double path_tof, double time_cal, double path_cal,
         int nphe_ltcc, int nphe_htcc, double PCAL_U, double PCAL_V, double PCAL_W,
