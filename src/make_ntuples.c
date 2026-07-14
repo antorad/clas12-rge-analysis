@@ -35,7 +35,7 @@
 #include "../lib/rge_progress.h"
 
 static const char *USAGE_MESSAGE =
-"Usage: make_ntuples [-hDf:cn:w:d:] infile\n"
+"Usage: make_ntuples [-hDfcn:w:d:] infile\n"
 " * -h          : show this message and exit.\n"
 " * -D          : activate debug mode.\n"
 " * -f fmtswtch : switches between using DC-only tracking data and DC+FMT \n"
