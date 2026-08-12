@@ -573,12 +573,9 @@ static int run(
         // if (fmt_switch)
         //     entry_counter = bfmt.nrows; 
         for (uint pos = 0; pos < entry_counter; ++pos) {
-            int fmt_nlayers;
+            int fmt_nlayers = 0;
             if (fmt_switch > 0) {
                 fmt_nlayers = rge_get_uint(&bfmt, "NDF", pos);
-            }
-            else {
-                fmt_nlayers = 0;
             }
             
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
@@ -898,8 +895,8 @@ static int run(
 /** Handle arguments for make_ntuples using optarg. */
 static int handle_args(
         int argc, char **argv, char **filename_in, char **work_dir,
-        char **data_dir, bool *debug, int *fmt_switch, bool *fmt_cut,
-        bool *save_MC, lint *n_events, int *run_no, double *energy_beam
+        char **data_dir, bool *debug, int *fmt_switch, bool *fmt_switch_all,
+        bool *fmt_cut, bool *save_MC, lint *n_events, int *run_no, double *energy_beam
 ) {
     // Handle arguments.
     int opt;
@@ -923,6 +920,7 @@ static int handle_args(
                     case 0: *fmt_switch = 0; break; // DC only
                     case 1: *fmt_switch = 1; break; // DC + FMT
                     case 2: *fmt_switch = 2; break; // FMT, falling back to DC if unavailable
+                    case 3: *fmt_switch_all = true; break; // Run 3 previous cases
                     default:
                         rge_errno = RGEERR_BADOPTARGS;
                         return 1;
@@ -984,28 +982,36 @@ static int handle_args(
 /** Entry point of the program. */
 int main(int argc, char **argv) {
     // Handle arguments.
-    char *filename_in  = NULL;
-    char *work_dir     = NULL;
-    char *data_dir     = NULL;
-    bool debug         = false;
-    int fmt_switch     = -1;
-    bool fmt_cut       = false;
+    char *filename_in   = NULL;
+    char *work_dir      = NULL;
+    char *data_dir      = NULL;
+    bool debug          = false;
+    int fmt_switch      = -1;
+    bool fmt_switch_all = false;
+    bool fmt_cut        = false;
     bool save_MC        = false;
-    lint n_events      = -1;
-    int run_no         = -1;
-    double energy_beam = -1;
+    lint n_events       = -1;
+    int run_no          = -1;
+    double energy_beam  = -1;
 
     int err = handle_args(
             argc, argv, &filename_in, &work_dir, &data_dir, &debug, &fmt_switch,
-            &fmt_cut, &save_MC, &n_events, &run_no, &energy_beam
+            &fmt_switch_all, &fmt_cut, &save_MC, &n_events, &run_no, &energy_beam
     );
 
     // Run.
     if (rge_errno == RGEERR_UNDEFINED && err == 0) {
-        run(
-                filename_in, work_dir, data_dir, debug, fmt_switch, fmt_cut,
-                save_MC, n_events, run_no, energy_beam
-        );
+        if (fmt_switch_all) {
+            for (int i = 0; i < 3; ++i)
+            {
+                printf("Running with fmt_switch = %d\n", i);
+                fmt_switch = i;
+                run(
+                        filename_in, work_dir, data_dir, debug, fmt_switch, fmt_cut,
+                        save_MC, n_events, run_no, energy_beam
+                );
+            }
+        }
     }
 
     // Free up memory.

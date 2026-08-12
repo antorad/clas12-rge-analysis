@@ -221,8 +221,8 @@ rge_particle rge_particle_init(
 ) {
     uint pindex = rge_get_uint(track, "pindex", pos);
 
-    // Use only DC tracking data.    
-    if (fmt_switch == 0 && fmt_nlayers == 0) {
+    // If we only want DC data or both DC and FMT but no FMT layers are available, use only DC tracking data.
+    if (fmt_switch == 0 || (fmt_switch == 2 && fmt_nlayers == 0)) {
         return particle_init(
                 rge_get_double(particle, "charge", pindex),
                 rge_get_double(particle, "beta",   pindex),
@@ -236,8 +236,8 @@ rge_particle rge_particle_init(
                 rge_get_double(particle, "pz", pindex)
         );
     }
-    // Use DC+FMT tracking data or DC+FMT + DC only.
-    else if ((fmt_switch == 1 && fmt_nlayers != 0) || (fmt_switch == 2)) {
+    // If we want FMT data or DC and FMT and we have FMT layers available, use FMT tracking data.
+    else if ((fmt_switch == 1 && fmt_nlayers != 0) || (fmt_switch == 2 && fmt_nlayers != 0)) {
         pindex = rge_get_uint(fmttrack, "pindex", pos);
         // Apply FMT cuts.
         // Track reconstructed by FMT.
@@ -258,6 +258,7 @@ rge_particle rge_particle_init(
                 rge_get_double(fmttrack, "py",   pos),
                 rge_get_double(fmttrack, "pz",   pos)
         );
+            
     }
     else {
         return particle_init();
