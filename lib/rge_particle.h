@@ -215,7 +215,7 @@ static double beta(rge_particle p);
   */
 rge_particle rge_particle_init(
         rge_hipobank *particle, rge_hipobank *track, rge_hipobank *fmttrack,
-        uint pos, lint fmt_nlayers
+        uint pos, lint fmt_nlayers, int fmt_switch
 );
 
 /**

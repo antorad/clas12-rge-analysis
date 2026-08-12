@@ -217,12 +217,12 @@ double beta(rge_particle p) {
 // --+ library +----------------------------------------------------------------
 rge_particle rge_particle_init(
         rge_hipobank *particle, rge_hipobank *track, rge_hipobank *fmttrack,
-        uint pos, lint fmt_nlayers
+        uint pos, lint fmt_nlayers, int fmt_switch
 ) {
     uint pindex = rge_get_uint(track, "pindex", pos);
 
-    // Use only DC tracking data.
-    if (fmt_nlayers == 0) {
+    // Use only DC tracking data.    
+    if (fmt_switch == 0 && fmt_nlayers == 0) {
         return particle_init(
                 rge_get_double(particle, "charge", pindex),
                 rge_get_double(particle, "beta",   pindex),
@@ -236,28 +236,32 @@ rge_particle rge_particle_init(
                 rge_get_double(particle, "pz", pindex)
         );
     }
+    // Use DC+FMT tracking data or DC+FMT + DC only.
+    else if ((fmt_switch == 1 && fmt_nlayers != 0) || (fmt_switch == 2)) {
+        pindex = rge_get_uint(fmttrack, "pindex", pos);
+        // Apply FMT cuts.
+        // Track reconstructed by FMT.
+        if (fmttrack->nrows < 1) return particle_init();
+        // Track crossed enough FMT layers.
+        // if (rge_get_uint(fmttrack, "NDF", pos) < fmt_nlayers)
+        //     return particle_init();
 
-    // Use DC+FMT tracking data.
-    pindex = rge_get_uint(fmttrack, "pindex", pos);
-    // Apply FMT cuts.
-    // Track reconstructed by FMT.
-    if (fmttrack->nrows < 1) return particle_init();
-    // Track crossed enough FMT layers.
-    // if (rge_get_uint(fmttrack, "NDF", pos) < fmt_nlayers)
-    //     return particle_init();
-
-    return particle_init(
-            rge_get_double(particle, "charge", pindex),
-            rge_get_double(particle, "beta",   pindex),
-            rge_get_double(fmttrack, "sector", pos),
-            rge_get_double(fmttrack, "vx", pos),
-            rge_get_double(fmttrack, "vy", pos),
-            rge_get_double(fmttrack, "vz", pos),
-            rge_get_double(fmttrack, "vt", pos),
-            rge_get_double(fmttrack, "px",   pos),
-            rge_get_double(fmttrack, "py",   pos),
-            rge_get_double(fmttrack, "pz",   pos)
-    );
+        return particle_init(
+                rge_get_double(particle, "charge", pindex),
+                rge_get_double(particle, "beta",   pindex),
+                rge_get_double(fmttrack, "sector", pos),
+                rge_get_double(fmttrack, "vx", pos),
+                rge_get_double(fmttrack, "vy", pos),
+                rge_get_double(fmttrack, "vz", pos),
+                rge_get_double(fmttrack, "vt", pos),
+                rge_get_double(fmttrack, "px",   pos),
+                rge_get_double(fmttrack, "py",   pos),
+                rge_get_double(fmttrack, "pz",   pos)
+        );
+    }
+    else {
+        return particle_init();
+    }
 }
 
 int rge_set_pid(
