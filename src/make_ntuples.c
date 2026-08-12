@@ -38,9 +38,10 @@ static const char *USAGE_MESSAGE =
 "Usage: make_ntuples [-hDfcn:w:d:] infile\n"
 " * -h          : show this message and exit.\n"
 " * -D          : activate debug mode.\n"
-" * -f fmtswtch : switches between using DC-only tracking data and DC+FMT \n"
-"                 tracking data. If it's turned on it will use every FMT layer\n"
-"                 available. Default is off.\n"
+" * -f fmtswtch : switches between using DC-only tracking data (0), or DC+FMT \n"
+"                 tracking data only (1), or DC+FMT data and DC-only when no \n"
+"                 DC+FMT data is available (2), or all three previous cases (3).\n"
+"                 Default is 2.\n"
 // " * -f fmtlyrs  : define how many FMT layers should the track have hit.\n"
 // "                 Options are 0 (tracked only by DC), 2, and 3. If set to\n"
 // "                 something other than 0 and there is no FMT::Tracks bank in\n"
@@ -986,7 +987,7 @@ int main(int argc, char **argv) {
     char *work_dir      = NULL;
     char *data_dir      = NULL;
     bool debug          = false;
-    int fmt_switch      = -1;
+    int fmt_switch      = 2;
     bool fmt_switch_all = false;
     bool fmt_cut        = false;
     bool save_MC        = false;

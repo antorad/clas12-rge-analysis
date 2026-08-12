@@ -89,10 +89,11 @@ The output will be written to the `acc_corr.txt` file, by default in the `data` 
 Usage: make_ntuples [-hDf:cn:w:d:] infile
  * -h         : show this message and exit.
  * -D         : activate debug mode.
- * -f fmtlyrs : define how many FMT layers should the track have hit.
-                Options are 0 (tracked only by DC), 2, and 3. If set to
-                something other than 0 and there is no FMT::Tracks bank in
-                the input file, the program will crash. Default is 0.
+ * -f fmtswtch: select which bank to use for reconstruction.
+                Options are 0 (tracked only by REC::Track), 1 (tracked only
+                by FMT::Tracks bank), 2 (tracked by FMT::Tracks and
+                REC::Track when the first is not available), and 3 (runs the
+                3 previous options sequentially). Default is 2.
  * -c         : apply FMT geometry cut on data.
  * -n nevents : number of events.
  * -w workdir : location where output root files are to be stored. Default
