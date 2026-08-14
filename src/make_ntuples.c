@@ -571,18 +571,32 @@ static int run(
         uint trigger_pindex = UINT_MAX;
         double trigger_tof  = -1.;
         uint entry_counter = btrk.nrows;
-        // if (fmt_switch)
-        //     entry_counter = bfmt.nrows; 
+        
+        std::vector<uint> fmt_row_of(entry_counter, -1);
+        if (fmt_switch > 0) {
+            for (luint i = 0; i < bfmt.nrows; ++i) {
+                uint p = rge_get_uint(&bfmt, "pindex", i);
+                if (p < entry_counter) fmt_row_of[p] = static_cast<uint>(i);
+            }
+        }
+
+        // printf("Event %ld: btrk.nrows = %d, bfmt.nrows = %d\n", event, btrk.nrows, bfmt.nrows);
+
         for (uint pos = 0; pos < entry_counter; ++pos) {
+            uint pindex = rge_get_uint(&btrk, "pindex", pos);
+            
             int fmt_nlayers = 0;
             if (fmt_switch > 0) {
-                fmt_nlayers = rge_get_uint(&bfmt, "NDF", pos);
+                uint fmt_pos = fmt_row_of[pos];    // -1 if this particle has no FMT hit
+                bool has_fmt = (fmt_pos != -1);
+
+                // printf("pos = %d, pindex_dc = %d, fmt_pindex = %d\n", pos, pindex, rge_get_uint(&bfmt, "pindex", fmt_pos));
+
+                if (has_fmt) {
+                    fmt_nlayers = rge_get_uint(&bfmt, "NDF", fmt_pos);
+                }
             }
             
-            uint pindex = rge_get_uint(&btrk, "pindex", pos);
-            // if (fmt_switch)
-            //     pindex = rge_get_uint(&bfmt, "pindex", pos);
-
             // Get reconstructed particle from DC and from FMT.
             part_trigger = rge_particle_init(
                 &bpart, &btrk, &bfmt, pos, fmt_nlayers, fmt_switch
@@ -670,18 +684,11 @@ static int run(
         // y antes de cerrar el bucle de eventos "for (lint event = 0...)"
         // ==========================================================
 
-        for (uint pindex = 0; pindex < bpart.nrows; ++pindex) {
+        for (uint pos = 0; pos < bpart.nrows; ++pos) {
             
-            int pid = rge_get_double(&bpart, "pid", pindex);
-            int charge = rge_get_double(&bpart, "charge", pindex); // Opcional si confías en el PID
-            int fmt_nlayers;
-
-            if (fmt_switch > 0) {
-                fmt_nlayers = rge_get_uint(&bfmt, "NDF", pindex);
-            }
-            else {
-                fmt_nlayers = 0;
-            }
+            int pid = rge_get_double(&bpart, "pid", pos);
+            int charge = rge_get_double(&bpart, "charge", pos); // Opcional si confías en el PID
+            int fmt_nlayers = 0; // Photons don't have FMT layers, so this will remain 0.
 
             // 1. FILTRO DE FOTONES
             // Solo procesar si es PID 22 (Foton)
@@ -689,9 +696,9 @@ static int run(
 
             // 2. FILTRO DE ENERGIA (Mineeva sugiere > 0.2 o 0.3 GeV)
             // Obtenemos momento px, py, pz del banco de partículas
-            double px = rge_get_double(&bpart, "px", pindex);
-            double py = rge_get_double(&bpart, "py", pindex);
-            double pz = rge_get_double(&bpart, "pz", pindex);
+            double px = rge_get_double(&bpart, "px", pos);
+            double py = rge_get_double(&bpart, "py", pos);
+            double pz = rge_get_double(&bpart, "pz", pos);
             double p_mom = sqrt(px*px + py*py + pz*pz);
             
             //if (p_mom < 0.1) continue; // Descartar ruido de baja energía
@@ -700,13 +707,13 @@ static int run(
             // Necesitamos esto para las correcciones de Mineeva
             double energy_PCAL, energy_ECIN, energy_ECOU;
             // Nota: get_deposited_energy usa pindex, asi que funciona para neutros
-            if (get_deposited_energy(&bcal, pindex, &energy_PCAL, &energy_ECIN, &energy_ECOU)) 
+            if (get_deposited_energy(&bcal, pos, &energy_PCAL, &energy_ECIN, &energy_ECOU)) 
                 continue; 
 
             //Get PCAL distances to each side
             double PCAL_U, PCAL_V, PCAL_W;
             if (get_pcal_distance(
-                    &bcal, pindex, &PCAL_U, &PCAL_V, &PCAL_W
+                    &bcal, pos, &PCAL_U, &PCAL_V, &PCAL_W
             )) return 1;
 
 
@@ -718,13 +725,13 @@ static int run(
             photon_part.px = px;
             photon_part.py = py;
             photon_part.pz = pz;
-            photon_part.vx = rge_get_double(&bpart, "vx", pindex);
-            photon_part.vy = rge_get_double(&bpart, "vy", pindex);
-            photon_part.vz = rge_get_double(&bpart, "vz", pindex);
-            photon_part.vt = rge_get_double(&bpart, "vt", pindex);
+            photon_part.vx = rge_get_double(&bpart, "vx", pos);
+            photon_part.vy = rge_get_double(&bpart, "vy", pos);
+            photon_part.vz = rge_get_double(&bpart, "vz", pos);
+            photon_part.vt = rge_get_double(&bpart, "vt", pos);
 
             photon_part.charge = 0;
-            photon_part.beta = rge_get_double(&bpart, "beta", pindex);
+            photon_part.beta = rge_get_double(&bpart, "beta", pos);
  
             // Importante: marcar como valida
             photon_part.is_valid = true; 
@@ -732,14 +739,14 @@ static int run(
             // 5. IDENTIFICACION DE FOTONES (Cortes de tiempo/beta)
             // Mineeva usa cortes de beta. Obtenemos el TOF.
             double time_tof, path_tof, time_cal, path_cal;
-            get_time_path(&bsci, &bcal, pindex, &time_tof, &path_tof, &time_cal, &path_cal);
+            get_time_path(&bsci, &bcal, pos, &time_tof, &path_tof, &time_cal, &path_cal);
             
             // 6. GUARDAR EN EL TREE
             // Usamos valores 'dummy' (0 o -1) para variables que solo tienen las trazas (chi2, ndf, etc)
             Float_t arr[RGE_VARS_SIZE];
             
             // status del banco de particulas
-            int status = rge_get_double(&bpart, "status", pindex);
+            int status = rge_get_double(&bpart, "status", pos);
 
             //Get start time of the event
             double start_time = rge_get_double(&bevent, "startTime", 0);
@@ -762,11 +769,15 @@ static int run(
         // Processing particles.
         for (uint pos = 0; pos < entry_counter; ++pos) {
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
+            
             int fmt_nlayers = 0;
-
             if (fmt_switch > 0) {
-                // pindex = rge_get_uint(&bfmt, "pindex", pos);
-                fmt_nlayers = rge_get_uint(&bfmt, "NDF", pos);
+                uint fmt_pos = fmt_row_of[pos];    // -1 if this particle has no FMT hit
+                bool has_fmt = (fmt_pos != -1);
+
+                if (has_fmt) {
+                    fmt_nlayers = rge_get_uint(&bfmt, "NDF", fmt_pos);
+                }
             }
             
 
@@ -798,19 +809,19 @@ static int run(
             // Get energy deposited in calorimeters.
             double energy_PCAL, energy_ECIN, energy_ECOU;
             if (get_deposited_energy(
-                    &bcal, pindex, &energy_PCAL, &energy_ECIN, &energy_ECOU
+                    &bcal, pos, &energy_PCAL, &energy_ECIN, &energy_ECOU
             )) return 1;
 
             //Get PCAL distances to each side
             double PCAL_U, PCAL_V, PCAL_W;
             if (get_pcal_distance(
-                    &bcal, pindex, &PCAL_U, &PCAL_V, &PCAL_W
+                    &bcal, pos, &PCAL_U, &PCAL_V, &PCAL_W
             )) return 1;
 
             //Get DC edge distances for each region
             double DC_R1_edge, DC_R2_edge, DC_R3_edge;
             if (get_dc_edge(
-                    &btraj, pindex, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge
+                    &btraj, pos, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge
             )) return 1;
 
             // Get Cherenkov counters data.
@@ -1012,6 +1023,12 @@ int main(int argc, char **argv) {
                         save_MC, n_events, run_no, energy_beam
                 );
             }
+        }
+        else {
+            run(
+                    filename_in, work_dir, data_dir, debug, fmt_switch, fmt_cut,
+                    save_MC, n_events, run_no, energy_beam
+            );
         }
     }
 
