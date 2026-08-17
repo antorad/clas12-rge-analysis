@@ -811,11 +811,6 @@ static int run(
                 );
             }
 
-            // Get reconstructed particle from DC and from FMT.
-            rge_particle part = rge_particle_init(
-                &bpart, &btrk, &bfmt, fmt_pos, fmt_nlayers, fmt_switch
-            );
-
             // Skip particle if it doesn't fit requirements.
             if (!part.is_valid) continue;
 
