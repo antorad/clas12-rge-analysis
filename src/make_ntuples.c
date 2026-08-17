@@ -798,15 +798,16 @@ static int run(
             }
 
             // If fmt_switch is enabled and there are FMT layers, use FMT position; otherwise, use DC position.
+            rge_particle part;
             if (fmt_switch > 0 && fmt_nlayers != 0) {
                 // Get reconstructed particle from DC and from FMT.
-                rge_particle part = rge_particle_init(
+                part = rge_particle_init(
                     &bpart, &btrk, &bfmt, fmt_pos, fmt_nlayers, fmt_switch
                 );
             }
             else {
                 // Get reconstructed particle from DC only.
-                rge_particle part = rge_particle_init(
+                part = rge_particle_init(
                     &bpart, &btrk, &bfmt, pos, fmt_nlayers, fmt_switch
                 );
             }
