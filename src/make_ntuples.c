@@ -686,7 +686,7 @@ static int run(
 
         for (uint pos = 0; pos < bpart.nrows; ++pos) {
             
-            int pid = rge_get_double(&bpart, "pid", pos);
+            uint pid = rge_get_uint(&bpart, "pid", pos);
             int charge = rge_get_double(&bpart, "charge", pos); // Opcional si confías en el PID
             int fmt_nlayers = 0; // Photons don't have FMT layers, so this will remain 0.
 
@@ -769,31 +769,41 @@ static int run(
         // Processing particles.
         for (uint pos = 0; pos < entry_counter; ++pos) {
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
-            
-            int fmt_nlayers = 0;
-            if (fmt_switch > 0) {
-                uint fmt_pos = fmt_row_of[pos];    // -1 if this particle has no FMT hit
-                bool has_fmt = (fmt_pos != -1);
 
-                if (has_fmt) {
-                    fmt_nlayers = rge_get_uint(&bfmt, "NDF", fmt_pos);
-                }
-            }
+            // printf("Event %ld: pos = %d, pindex = %d, pid = %d\n", event, pos, pindex, rge_get_uint(&bpart, "pid", pindex));
             
-
             // Avoid double-counting the trigger electron.
             if (trigger_pindex == pindex && trigger_pos == pos) {
                 continue;
             }
 
             // Omit particles with pid=0
-            if (rge_get_double(&bpart, "pid", pindex)==0){
+            if (rge_get_uint(&bpart, "pid", pindex)==0){
                 continue;
+            }
+
+            int fmt_nlayers = 0;
+            uint fmt_pos = -1;
+            if (fmt_switch > 0) {
+                fmt_pos = fmt_row_of[pos];    // -1 if this particle has no FMT hit
+                bool has_fmt = (fmt_pos != -1);
+
+                if (has_fmt) {
+                    fmt_nlayers = rge_get_uint(&bfmt, "NDF", fmt_pos);
+                    // printf("HAS FMT! fmt_nlayers = %d. \n", fmt_nlayers);
+                    // printf("pindex = %d, pos = %d, fmt_pos = %d\n", pindex, pos, fmt_pos);
+                    // printf("PART: px = %f, py = %f, pz = %f\n", rge_get_double(&bpart, "px", pindex), rge_get_double(&bpart, "py", pindex), rge_get_double(&bpart, "pz", pindex));
+                    // printf("FMT:  px = %f, py = %f, pz = %f\n", rge_get_double(&bfmt, "px", fmt_pos), rge_get_double(&bfmt, "py", fmt_pos), rge_get_double(&bfmt, "pz", fmt_pos));
+                }
+            }
+
+            if (fmt_pos == -1) {
+                fmt_pos = pos;
             }
 
             // Get reconstructed particle from DC and from FMT.
             rge_particle part = rge_particle_init(
-                &bpart, &btrk, &bfmt, pos, fmt_nlayers, fmt_switch
+                &bpart, &btrk, &bfmt, fmt_pos, fmt_nlayers, fmt_switch
             );
 
             // Skip particle if it doesn't fit requirements.
