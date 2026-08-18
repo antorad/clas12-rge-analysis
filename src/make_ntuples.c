@@ -586,9 +586,11 @@ static int run(
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
             
             int fmt_nlayers = 0;
+            uint fmt_pos = -1;
+            bool has_fmt = false;
             if (fmt_switch > 0) {
-                uint fmt_pos = fmt_row_of[pos];    // -1 if this particle has no FMT hit
-                bool has_fmt = (fmt_pos != -1);
+                fmt_pos = fmt_row_of[pos];    // -1 if this particle has no FMT hit
+                has_fmt = (fmt_pos != -1);
 
                 // printf("pos = %d, pindex_dc = %d, fmt_pindex = %d\n", pos, pindex, rge_get_uint(&bfmt, "pindex", fmt_pos));
 
@@ -597,10 +599,20 @@ static int run(
                 }
             }
             
-            // Get reconstructed particle from DC and from FMT.
-            part_trigger = rge_particle_init(
-                &bpart, &btrk, &bfmt, pos, fmt_nlayers, fmt_switch
-            );
+            // If fmt_switch is enabled and there are FMT layers, use FMT position; otherwise, use DC position.
+            rge_particle part_trigger;
+            if (fmt_switch > 0 && has_fmt) {
+                // Get reconstructed particle from DC and from FMT.
+                part_trigger = rge_particle_init(
+                    &bpart, &btrk, &bfmt, fmt_pos, fmt_nlayers, fmt_switch
+                );
+            }
+            else {
+                // Get reconstructed particle from DC only.
+                part_trigger = rge_particle_init(
+                    &bpart, &btrk, &bfmt, pos, fmt_nlayers, fmt_switch
+                );
+            }
 
             // Skip particle if it doesn't fit requirements.
             if (!part_trigger.is_valid) continue;
@@ -784,9 +796,10 @@ static int run(
 
             int fmt_nlayers = 0;
             uint fmt_pos = -1;
+            bool has_fmt = false;
             if (fmt_switch > 0) {
                 fmt_pos = fmt_row_of[pos];    // -1 if this particle has no FMT hit
-                bool has_fmt = (fmt_pos != -1);
+                has_fmt = (fmt_pos != -1);
 
                 if (has_fmt) {
                     fmt_nlayers = rge_get_uint(&bfmt, "NDF", fmt_pos);
@@ -799,7 +812,7 @@ static int run(
 
             // If fmt_switch is enabled and there are FMT layers, use FMT position; otherwise, use DC position.
             rge_particle part;
-            if (fmt_switch > 0 && fmt_nlayers != 0) {
+            if (fmt_switch > 0 && has_fmt) {
                 // Get reconstructed particle from DC and from FMT.
                 part = rge_particle_init(
                     &bpart, &btrk, &bfmt, fmt_pos, fmt_nlayers, fmt_switch
