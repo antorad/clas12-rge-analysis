@@ -43,7 +43,7 @@ static const char *USAGE_MESSAGE =
 " * -h         : show this message and exit.\n"
 " * -f         : set this to true to process FMT::Tracks bank. If this is set\n"
 "                and FMT::Tracks bank is not present in the HIPO file, the\n"
-"                program will crash.\n"
+"                program will crash. Default is true.\n"
 " * -s         : set this to true to save MC banks.\n"
 "                Should only be used for simulation files. If this is set\n"
 "                and MC banks are not present in the HIPO file, the\n"
@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
     // Handle arguments.
     char *in_filename  = NULL;
     char *work_dir     = NULL;
-    bool use_fmt       = false;
+    bool use_fmt       = true;
     bool is_MC         = false;
     int  run_no        = -1;
     lint nevents       = -1;

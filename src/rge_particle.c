@@ -217,12 +217,12 @@ double beta(rge_particle p) {
 // --+ library +----------------------------------------------------------------
 rge_particle rge_particle_init(
         rge_hipobank *particle, rge_hipobank *track, rge_hipobank *fmttrack,
-        uint pos, lint fmt_nlayers
+        uint pos, lint fmt_nlayers, int fmt_switch
 ) {
     uint pindex = rge_get_uint(track, "pindex", pos);
 
-    // Use only DC tracking data.
-    if (fmt_nlayers == 0) {
+    // If we only want DC data or both DC and FMT but no FMT layers are available, use only DC tracking data.
+    if (fmt_switch == 0 || (fmt_switch == 2 && fmt_nlayers == 0)) {
         return particle_init(
                 rge_get_double(particle, "charge", pindex),
                 rge_get_double(particle, "beta",   pindex),
@@ -236,28 +236,33 @@ rge_particle rge_particle_init(
                 rge_get_double(particle, "pz", pindex)
         );
     }
+    // If we want FMT data or DC and FMT and we have FMT layers available, use FMT tracking data.
+    else if ((fmt_switch == 1 && fmt_nlayers != 0) || (fmt_switch == 2 && fmt_nlayers != 0)) {
+        pindex = rge_get_uint(fmttrack, "pindex", pos);
+        // Apply FMT cuts.
+        // Track reconstructed by FMT.
+        if (fmttrack->nrows < 1) return particle_init();
+        // Track crossed enough FMT layers.
+        // if (rge_get_uint(fmttrack, "NDF", pos) < fmt_nlayers)
+        //     return particle_init();
 
-    // Use DC+FMT tracking data.
-    pindex = rge_get_uint(fmttrack, "pindex", pos);
-    // Apply FMT cuts.
-    // Track reconstructed by FMT.
-    if (fmttrack->nrows < 1) return particle_init();
-    // Track crossed enough FMT layers.
-    if (rge_get_uint(fmttrack, "NDF", pos) < fmt_nlayers)
+        return particle_init(
+                rge_get_double(particle, "charge", pindex),
+                rge_get_double(particle, "beta",   pindex),
+                rge_get_double(fmttrack, "sector", pos),
+                rge_get_double(fmttrack, "vx", pos),
+                rge_get_double(fmttrack, "vy", pos),
+                rge_get_double(fmttrack, "vz", pos),
+                rge_get_double(fmttrack, "vt", pos),
+                rge_get_double(fmttrack, "px",   pos),
+                rge_get_double(fmttrack, "py",   pos),
+                rge_get_double(fmttrack, "pz",   pos)
+        );
+            
+    }
+    else {
         return particle_init();
-
-    return particle_init(
-            rge_get_double(particle, "charge", pindex),
-            rge_get_double(particle, "beta",   pindex),
-            rge_get_double(fmttrack, "sector", pos),
-            rge_get_double(fmttrack, "vx", pos),
-            rge_get_double(fmttrack, "vy", pos),
-            rge_get_double(fmttrack, "vz", pos),
-            rge_get_double(fmttrack, "vt", pos),
-            rge_get_double(fmttrack, "px",   pos),
-            rge_get_double(fmttrack, "py",   pos),
-            rge_get_double(fmttrack, "pz",   pos)
-    );
+    }
 }
 
 int rge_set_pid(
@@ -310,7 +315,7 @@ int rge_set_pid(
 
 int rge_fill_ntuples_arr(
         Float_t *arr, rge_particle p, rge_particle e, int run_no, int evn,
-        double start_time, int status, double beam_E, float chi2, float ndf,
+        double start_time, int status, double beam_E, float chi2, float ndf, int FMT_layers,
         double pcal_energy, double ecin_E, double ecou_E,
         double time_tof, double path_tof, double time_cal, double path_cal,
         int nphe_ltcc, int nphe_htcc, double PCAL_U, double PCAL_V, double PCAL_W,
@@ -342,8 +347,9 @@ int rge_fill_ntuples_arr(
     arr[RGE_SECTOR.addr] = p.sector;
 
     // Tracking.
-    arr[RGE_CHI2.addr] = chi2;
-    arr[RGE_NDF.addr]  = ndf;
+    arr[RGE_CHI2.addr]      = chi2;
+    arr[RGE_NDF.addr]       = ndf;
+    arr[RGE_FMTLAYERS.addr] = FMT_layers;
 
     //Trajectory
     arr[RGE_DCR1EDGE.addr] = DC_R1_edge;

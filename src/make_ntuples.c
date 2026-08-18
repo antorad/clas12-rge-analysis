@@ -35,19 +35,23 @@
 #include "../lib/rge_progress.h"
 
 static const char *USAGE_MESSAGE =
-"Usage: make_ntuples [-hDf:cn:w:d:] infile\n"
-" * -h         : show this message and exit.\n"
-" * -D         : activate debug mode.\n"
-" * -f fmtlyrs : define how many FMT layers should the track have hit.\n"
-"                Options are 0 (tracked only by DC), 2, and 3. If set to\n"
-"                something other than 0 and there is no FMT::Tracks bank in\n"
-"                the input file, the program will crash. Default is 0.\n"
-" * -c         : apply FMT geometry cut on data.\n"
-" * -n nevents : number of events.\n"
-" * -w workdir : location where output root files are to be stored. Default\n"
-"                is root_io.\n"
-" * -d datadir : location where sampling fraction files are. Default is data.\n"
-" * infile     : input ROOT file. Expected file format: <text>run_no.root`.\n\n"
+"Usage: make_ntuples [-hDfcn:w:d:] infile\n"
+" * -h          : show this message and exit.\n"
+" * -D          : activate debug mode.\n"
+" * -f fmtswtch : switches between using DC-only tracking data (0), or DC+FMT \n"
+"                 tracking data only (1), or DC+FMT data and DC-only when no \n"
+"                 DC+FMT data is available (2), or all three previous cases (3).\n"
+"                 Default is 2.\n"
+// " * -f fmtlyrs  : define how many FMT layers should the track have hit.\n"
+// "                 Options are 0 (tracked only by DC), 2, and 3. If set to\n"
+// "                 something other than 0 and there is no FMT::Tracks bank in\n"
+// "                 the input file, the program will crash. Default is 0.\n"
+" * -c          : apply FMT geometry cut on data.\n"
+" * -n nevents  : number of events.\n"
+" * -w workdir  : location where output root files are to be stored. Default\n"
+"                 is root_io.\n"
+" * -d datadir  : location where sampling fraction files are. Default is data.\n"
+" * infile      : input ROOT file. Expected file format: <text>run_no.root`.\n\n"
 "    Generate ntuples relevant to SIDIS analysis based on the reconstructed\n"
 "    variables from CLAS12 data.\n";
 
@@ -360,7 +364,7 @@ static int apply_fmtgeomtry_cut(rge_particle *p) {
 /** run() function of the program. Check USAGE_MESSAGE for details. */
 static int run(
         char *filename_in, char *work_dir, char *data_dir, bool debug,
-        lint fmt_nlayers, bool fmt_cut, bool save_MC, lint n_events, int run_no,
+        int fmt_switch, bool fmt_cut, bool save_MC, lint n_events, int run_no,
         double energy_beam
 ) {
     //// Get sampling fraction.
@@ -409,23 +413,23 @@ static int run(
     // Checking whether the MC and FMT branches exist if we want to save them
     TObjArray *branch_list = tree_in->GetListOfBranches();
     bool found_fmt = false, found_mc = false;
-    if ( fmt_nlayers != 0 || save_MC)
+    if ( fmt_switch > 0 || save_MC)
     {
         for( int i = 0; i < branch_list->GetEntries(); i++)
         {
             std::string branch_name = branch_list->At(i)->GetName();
-            if ( fmt_nlayers != 0 && branch_name.find(RGE_RECFTRACK) != std::string::npos)
+            if ( fmt_switch > 0 && branch_name.find(RGE_RECFTRACK) != std::string::npos)
                 found_fmt = true;
             else if ( save_MC && branch_name.find(RGE_MCPARTICLE) != std::string::npos)
                 found_mc = true;
             // Ending search early conditions
-            if ( (found_fmt && found_mc) || (found_fmt && !save_MC) || (found_mc && fmt_nlayers == 0) )
+            if ( (found_fmt && found_mc) || (found_fmt && !save_MC) || (found_mc && !(fmt_switch > 0)) )
                 break;
         }
     }
 
-    // If fmt_nlayers != 0, check that REC::FTrack bank exists.
-    if (fmt_nlayers != 0 && !found_fmt) {
+    // If fmt_switch is true, check that REC::FTrack bank exists.
+    if (fmt_switch > 0 && !found_fmt) {
         rge_errno = RGEERR_NOFMTBANK;
         return 1;
     }
@@ -475,7 +479,7 @@ static int run(
     rge_hipobank bsci   = rge_hipobank_init(RGE_RECSCINTILLATOR, tree_in);
     // Optional hipo banks
     rge_hipobank bfmt, bmcpart, bmcevent;
-    if (fmt_nlayers != 0)
+    if (fmt_switch > 0)
         bfmt  = rge_hipobank_init(RGE_RECFTRACK, tree_in);
     if (save_MC)
     {
@@ -508,7 +512,7 @@ static int run(
         rge_get_entries(&bcal,   tree_in, event);
         rge_get_entries(&bchkv,  tree_in, event);
         rge_get_entries(&bsci,   tree_in, event);
-        if (fmt_nlayers != 0) rge_get_entries(&bfmt, tree_in, event);
+        if (fmt_switch > 0) rge_get_entries(&bfmt, tree_in, event);
         if (save_MC) 
         {
             rge_get_entries(&bmcpart, tree_in, event);
@@ -567,17 +571,48 @@ static int run(
         uint trigger_pindex = UINT_MAX;
         double trigger_tof  = -1.;
         uint entry_counter = btrk.nrows;
-        if (fmt_nlayers != 0)
-            entry_counter = bfmt.nrows; 
+        
+        std::vector<uint> fmt_row_of(entry_counter, -1);
+        if (fmt_switch > 0) {
+            for (luint i = 0; i < bfmt.nrows; ++i) {
+                uint p = rge_get_uint(&bfmt, "pindex", i);
+                if (p < entry_counter) fmt_row_of[p] = static_cast<uint>(i);
+            }
+        }
+
+        // printf("Event %ld: btrk.nrows = %d, bfmt.nrows = %d\n", event, btrk.nrows, bfmt.nrows);
+
         for (uint pos = 0; pos < entry_counter; ++pos) {
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
-            if (fmt_nlayers != 0)
-                pindex = rge_get_uint(&bfmt, "pindex", pos);
+            
+            int fmt_nlayers = 0;
+            uint fmt_pos = -1;
+            bool has_fmt = false;
+            if (fmt_switch > 0) {
+                fmt_pos = fmt_row_of[pos];    // -1 if this particle has no FMT hit
+                has_fmt = (fmt_pos != -1);
 
-            // Get reconstructed particle from DC and from FMT.
-            part_trigger = rge_particle_init(
-                &bpart, &btrk, &bfmt, pos, fmt_nlayers
-            );
+                // printf("pos = %d, pindex_dc = %d, fmt_pindex = %d\n", pos, pindex, rge_get_uint(&bfmt, "pindex", fmt_pos));
+
+                if (has_fmt) {
+                    fmt_nlayers = rge_get_uint(&bfmt, "NDF", fmt_pos);
+                }
+            }
+            
+            // If fmt_switch is enabled and there are FMT layers, use FMT position; otherwise, use DC position.
+            rge_particle part_trigger;
+            if (fmt_switch > 0 && has_fmt) {
+                // Get reconstructed particle from DC and from FMT.
+                part_trigger = rge_particle_init(
+                    &bpart, &btrk, &bfmt, fmt_pos, fmt_nlayers, fmt_switch
+                );
+            }
+            else {
+                // Get reconstructed particle from DC only.
+                part_trigger = rge_particle_init(
+                    &bpart, &btrk, &bfmt, pos, fmt_nlayers, fmt_switch
+                );
+            }
 
             // Skip particle if it doesn't fit requirements.
             if (!part_trigger.is_valid) continue;
@@ -636,7 +671,7 @@ static int run(
             Float_t arr[RGE_VARS_SIZE];
             if (rge_fill_ntuples_arr(
                     arr, part_trigger, part_trigger, run_no, event, start_time,
-                    status, energy_beam, chi2, ndf, energy_PCAL, energy_ECIN,
+                    status, energy_beam, chi2, ndf, fmt_nlayers, energy_PCAL, energy_ECIN,
                     energy_ECOU, time_tof, path_tof, time_cal, path_cal,
                     nphe_LTCC, nphe_HTCC, PCAL_U, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;
@@ -661,10 +696,11 @@ static int run(
         // y antes de cerrar el bucle de eventos "for (lint event = 0...)"
         // ==========================================================
 
-        for (uint pindex = 0; pindex < bpart.nrows; ++pindex) {
+        for (uint pos = 0; pos < bpart.nrows; ++pos) {
             
-            int pid = rge_get_double(&bpart, "pid", pindex);
-            int charge = rge_get_double(&bpart, "charge", pindex); // Opcional si confías en el PID
+            uint pid = rge_get_uint(&bpart, "pid", pos);
+            int charge = rge_get_double(&bpart, "charge", pos); // Opcional si confías en el PID
+            int fmt_nlayers = 0; // Photons don't have FMT layers, so this will remain 0.
 
             // 1. FILTRO DE FOTONES
             // Solo procesar si es PID 22 (Foton)
@@ -672,9 +708,9 @@ static int run(
 
             // 2. FILTRO DE ENERGIA (Mineeva sugiere > 0.2 o 0.3 GeV)
             // Obtenemos momento px, py, pz del banco de partículas
-            double px = rge_get_double(&bpart, "px", pindex);
-            double py = rge_get_double(&bpart, "py", pindex);
-            double pz = rge_get_double(&bpart, "pz", pindex);
+            double px = rge_get_double(&bpart, "px", pos);
+            double py = rge_get_double(&bpart, "py", pos);
+            double pz = rge_get_double(&bpart, "pz", pos);
             double p_mom = sqrt(px*px + py*py + pz*pz);
             
             //if (p_mom < 0.1) continue; // Descartar ruido de baja energía
@@ -683,13 +719,13 @@ static int run(
             // Necesitamos esto para las correcciones de Mineeva
             double energy_PCAL, energy_ECIN, energy_ECOU;
             // Nota: get_deposited_energy usa pindex, asi que funciona para neutros
-            if (get_deposited_energy(&bcal, pindex, &energy_PCAL, &energy_ECIN, &energy_ECOU)) 
+            if (get_deposited_energy(&bcal, pos, &energy_PCAL, &energy_ECIN, &energy_ECOU)) 
                 continue; 
 
             //Get PCAL distances to each side
             double PCAL_U, PCAL_V, PCAL_W;
             if (get_pcal_distance(
-                    &bcal, pindex, &PCAL_U, &PCAL_V, &PCAL_W
+                    &bcal, pos, &PCAL_U, &PCAL_V, &PCAL_W
             )) return 1;
 
 
@@ -701,13 +737,13 @@ static int run(
             photon_part.px = px;
             photon_part.py = py;
             photon_part.pz = pz;
-            photon_part.vx = rge_get_double(&bpart, "vx", pindex);
-            photon_part.vy = rge_get_double(&bpart, "vy", pindex);
-            photon_part.vz = rge_get_double(&bpart, "vz", pindex);
-            photon_part.vt = rge_get_double(&bpart, "vt", pindex);
+            photon_part.vx = rge_get_double(&bpart, "vx", pos);
+            photon_part.vy = rge_get_double(&bpart, "vy", pos);
+            photon_part.vz = rge_get_double(&bpart, "vz", pos);
+            photon_part.vt = rge_get_double(&bpart, "vt", pos);
 
             photon_part.charge = 0;
-            photon_part.beta = rge_get_double(&bpart, "beta", pindex);
+            photon_part.beta = rge_get_double(&bpart, "beta", pos);
  
             // Importante: marcar como valida
             photon_part.is_valid = true; 
@@ -715,14 +751,14 @@ static int run(
             // 5. IDENTIFICACION DE FOTONES (Cortes de tiempo/beta)
             // Mineeva usa cortes de beta. Obtenemos el TOF.
             double time_tof, path_tof, time_cal, path_cal;
-            get_time_path(&bsci, &bcal, pindex, &time_tof, &path_tof, &time_cal, &path_cal);
+            get_time_path(&bsci, &bcal, pos, &time_tof, &path_tof, &time_cal, &path_cal);
             
             // 6. GUARDAR EN EL TREE
             // Usamos valores 'dummy' (0 o -1) para variables que solo tienen las trazas (chi2, ndf, etc)
             Float_t arr[RGE_VARS_SIZE];
             
             // status del banco de particulas
-            int status = rge_get_double(&bpart, "status", pindex);
+            int status = rge_get_double(&bpart, "status", pos);
 
             //Get start time of the event
             double start_time = rge_get_double(&bevent, "startTime", 0);
@@ -731,7 +767,7 @@ static int run(
             // Nota: Pasamos photon_part como la particula, y part_trigger (el electron) como referencia
             if (rge_fill_ntuples_arr(
                     arr, photon_part, part_trigger, run_no, event, start_time, status,
-                    energy_beam, -100.0, -100.0, energy_PCAL, energy_ECIN, energy_ECOU, time_tof,
+                    energy_beam, -100.0, -100.0, fmt_nlayers, energy_PCAL, energy_ECIN, energy_ECOU, time_tof,
                     path_tof, time_cal, path_cal, 0, 0, PCAL_U, PCAL_V, PCAL_W, -999, -999, -999 // No Cherenkov para fotones
             )) continue;
 
@@ -745,23 +781,49 @@ static int run(
         // Processing particles.
         for (uint pos = 0; pos < entry_counter; ++pos) {
             uint pindex = rge_get_uint(&btrk, "pindex", pos);
-            if (fmt_nlayers != 0)
-                pindex = rge_get_uint(&bfmt, "pindex", pos);
 
+            // printf("Event %ld: pos = %d, pindex = %d, pid = %d\n", event, pos, pindex, rge_get_uint(&bpart, "pid", pindex));
+            
             // Avoid double-counting the trigger electron.
             if (trigger_pindex == pindex && trigger_pos == pos) {
                 continue;
             }
 
             // Omit particles with pid=0
-            if (rge_get_double(&bpart, "pid", pindex)==0){
+            if (rge_get_uint(&bpart, "pid", pindex)==0){
                 continue;
             }
 
-            // Get reconstructed particle from DC and from FMT.
-            rge_particle part = rge_particle_init(
-                &bpart, &btrk, &bfmt, pos, fmt_nlayers
-            );
+            int fmt_nlayers = 0;
+            uint fmt_pos = -1;
+            bool has_fmt = false;
+            if (fmt_switch > 0) {
+                fmt_pos = fmt_row_of[pos];    // -1 if this particle has no FMT hit
+                has_fmt = (fmt_pos != -1);
+
+                if (has_fmt) {
+                    fmt_nlayers = rge_get_uint(&bfmt, "NDF", fmt_pos);
+                    // printf("HAS FMT! fmt_nlayers = %d. \n", fmt_nlayers);
+                    // printf("pindex = %d, pos = %d, fmt_pos = %d\n", pindex, pos, fmt_pos);
+                    // printf("PART: px = %f, py = %f, pz = %f\n", rge_get_double(&bpart, "px", pindex), rge_get_double(&bpart, "py", pindex), rge_get_double(&bpart, "pz", pindex));
+                    // printf("FMT:  px = %f, py = %f, pz = %f\n", rge_get_double(&bfmt, "px", fmt_pos), rge_get_double(&bfmt, "py", fmt_pos), rge_get_double(&bfmt, "pz", fmt_pos));
+                }
+            }
+
+            // If fmt_switch is enabled and there are FMT layers, use FMT position; otherwise, use DC position.
+            rge_particle part;
+            if (fmt_switch > 0 && has_fmt) {
+                // Get reconstructed particle from DC and from FMT.
+                part = rge_particle_init(
+                    &bpart, &btrk, &bfmt, fmt_pos, fmt_nlayers, fmt_switch
+                );
+            }
+            else {
+                // Get reconstructed particle from DC only.
+                part = rge_particle_init(
+                    &bpart, &btrk, &bfmt, pos, fmt_nlayers, fmt_switch
+                );
+            }
 
             // Skip particle if it doesn't fit requirements.
             if (!part.is_valid) continue;
@@ -776,19 +838,19 @@ static int run(
             // Get energy deposited in calorimeters.
             double energy_PCAL, energy_ECIN, energy_ECOU;
             if (get_deposited_energy(
-                    &bcal, pindex, &energy_PCAL, &energy_ECIN, &energy_ECOU
+                    &bcal, pos, &energy_PCAL, &energy_ECIN, &energy_ECOU
             )) return 1;
 
             //Get PCAL distances to each side
             double PCAL_U, PCAL_V, PCAL_W;
             if (get_pcal_distance(
-                    &bcal, pindex, &PCAL_U, &PCAL_V, &PCAL_W
+                    &bcal, pos, &PCAL_U, &PCAL_V, &PCAL_W
             )) return 1;
 
             //Get DC edge distances for each region
             double DC_R1_edge, DC_R2_edge, DC_R3_edge;
             if (get_dc_edge(
-                    &btraj, pindex, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge
+                    &btraj, pos, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge
             )) return 1;
 
             // Get Cherenkov counters data.
@@ -818,7 +880,7 @@ static int run(
             Float_t arr[RGE_VARS_SIZE];
             if (rge_fill_ntuples_arr(
                     arr, part, part_trigger, run_no, event, start_time, status,
-                    energy_beam, chi2, ndf, energy_PCAL, energy_ECIN, energy_ECOU,
+                    energy_beam, chi2, ndf, fmt_nlayers, energy_PCAL, energy_ECIN, energy_ECOU,
                     time_tof, path_tof, time_cal, path_cal, nphe_LTCC, nphe_HTCC, PCAL_U,
                     PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
             )) return 1;
@@ -838,14 +900,22 @@ static int run(
 
     // Create output file.
     char filename_out[PATH_MAX];
-    if (fmt_nlayers == 0) {
+    if (fmt_switch == 0) {
         sprintf(filename_out, "%s/ntuples_dc_%06d.root", work_dir, run_no);
     }
-    else {
+    else if (fmt_switch == 1) {
         sprintf(
-                filename_out, "%s/ntuples_fmt%1ld_%06d.root", work_dir,
-                fmt_nlayers, run_no
+                filename_out, "%s/ntuples_fmt_%06d.root", work_dir, run_no
         );
+    }
+    else if (fmt_switch == 2) {
+        sprintf(
+                filename_out, "%s/ntuples_dc_fmt_%06d.root", work_dir, run_no
+        );
+    }
+    else {
+        rge_errno = RGEERR_BADOPTARGS;
+        return 1;
     }
     TFile *file_out = TFile::Open(filename_out, "RECREATE");
 
@@ -866,8 +936,8 @@ static int run(
 /** Handle arguments for make_ntuples using optarg. */
 static int handle_args(
         int argc, char **argv, char **filename_in, char **work_dir,
-        char **data_dir, bool *debug, lint *fmt_nlayers, bool *fmt_cut,
-        bool *save_MC, lint *n_events, int *run_no, double *energy_beam
+        char **data_dir, bool *debug, int *fmt_switch, bool *fmt_switch_all,
+        bool *fmt_cut, bool *save_MC, lint *n_events, int *run_no, double *energy_beam
 ) {
     // Handle arguments.
     int opt;
@@ -879,9 +949,26 @@ static int handle_args(
             case 'D':
                 *debug = true;
                 break;
-            case 'f':
-                if (rge_process_fmtnlayers(fmt_nlayers, optarg)) return 1;
+            case 'f': {
+                char *endptr;
+                long val = strtol(optarg, &endptr, 10);
+                if (endptr == optarg || *endptr != '\0') {
+                    // optarg wasn't a valid integer at all
+                    rge_errno = RGEERR_BADOPTARGS;
+                    return 1;
+                }
+                switch (val) {
+                    case 0: *fmt_switch = 0; break; // DC only
+                    case 1: *fmt_switch = 1; break; // DC + FMT
+                    case 2: *fmt_switch = 2; break; // FMT, falling back to DC if unavailable
+                    case 3: *fmt_switch_all = true; break; // Run 3 previous cases
+                    default:
+                        rge_errno = RGEERR_BADOPTARGS;
+                        return 1;
+                }
                 break;
+            }
+                // if (rge_process_fmtnlayers(fmt_nlayers, optarg)) return 1; // Just checks that fmt_nlayers is valid, doesn't set fmt_cut
             case 'c':
                 *fmt_cut = true;
                 break;
@@ -936,28 +1023,42 @@ static int handle_args(
 /** Entry point of the program. */
 int main(int argc, char **argv) {
     // Handle arguments.
-    char *filename_in  = NULL;
-    char *work_dir     = NULL;
-    char *data_dir     = NULL;
-    bool debug         = false;
-    lint fmt_nlayers   = 0;
-    bool fmt_cut       = false;
+    char *filename_in   = NULL;
+    char *work_dir      = NULL;
+    char *data_dir      = NULL;
+    bool debug          = false;
+    int fmt_switch      = 2;
+    bool fmt_switch_all = false;
+    bool fmt_cut        = false;
     bool save_MC        = false;
-    lint n_events      = -1;
-    int run_no         = -1;
-    double energy_beam = -1;
+    lint n_events       = -1;
+    int run_no          = -1;
+    double energy_beam  = -1;
 
     int err = handle_args(
-            argc, argv, &filename_in, &work_dir, &data_dir, &debug,
-            &fmt_nlayers, &fmt_cut, &save_MC, &n_events, &run_no, &energy_beam
+            argc, argv, &filename_in, &work_dir, &data_dir, &debug, &fmt_switch,
+            &fmt_switch_all, &fmt_cut, &save_MC, &n_events, &run_no, &energy_beam
     );
 
     // Run.
     if (rge_errno == RGEERR_UNDEFINED && err == 0) {
-        run(
-                filename_in, work_dir, data_dir, debug, fmt_nlayers, fmt_cut,
-                save_MC, n_events, run_no, energy_beam
-        );
+        if (fmt_switch_all) {
+            for (int i = 0; i < 3; ++i)
+            {
+                printf("Running with fmt_switch = %d\n", i);
+                fmt_switch = i;
+                run(
+                        filename_in, work_dir, data_dir, debug, fmt_switch, fmt_cut,
+                        save_MC, n_events, run_no, energy_beam
+                );
+            }
+        }
+        else {
+            run(
+                    filename_in, work_dir, data_dir, debug, fmt_switch, fmt_cut,
+                    save_MC, n_events, run_no, energy_beam
+            );
+        }
     }
 
     // Free up memory.

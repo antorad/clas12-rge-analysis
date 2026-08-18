@@ -140,7 +140,7 @@ int rge_process_pid(lint *pid, char *arg) {
 int rge_process_fmtnlayers(lint *nlayers, char *arg) {
     int err = run_strtol(nlayers, arg);
     if (err == 1 || (
-            *nlayers != 0 &&
+            *nlayers != 0 && *nlayers != -1 &&
             (FMTMINLAYERS > *nlayers || *nlayers > FMTNLAYERS)
     )) {
         rge_errno = RGEERR_INVALIDFMTNLAYERS;
