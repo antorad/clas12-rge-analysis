@@ -1,9 +1,9 @@
 #!/bin/bash
 
 TARGET=$1
-BANKS="dc"
+BANKS="dc_fmt"
 
-WORKFLOW_NAME="rge_data_tuples_${TARGET}_${BANKS}_1"
+WORKFLOW_NAME="rge_data_tuples_${TARGET}_${BANKS}"
 
 # Create workflow
 swif2 create $WORKFLOW_NAME
@@ -21,7 +21,7 @@ while read -r RUN_NUMBER; do
         -partition production \
         -time 24h \
         -disk-scratch 200g \
-        -ram 4g \
+        -ram 6g \
         -shell /bin/bash \
         $INPUT_CMD \
         "/work/clas12/rg-e/antorad/clas12-rge-analysis/make_root_files_wf.sh -a -b $BANKS -r $RUN_NUMBER -t $TARGET"

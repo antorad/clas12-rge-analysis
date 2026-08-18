@@ -25,10 +25,10 @@ while getopts "ab:r:t:" opt; do
     b)
        if [ "$OPTARG" == "dc" ]; then
            LABEL="dc"
-       elif [ "$OPTARG" == "fmt" ]; then
+       elif [ "$OPTARG" == "dc_fmt" ]; then
            F_FLAG_H2R="-f"
            F_FLAG_MNT="-f 2"
-           LABEL="fmt2"
+           LABEL="dc_fmt"
        else
            echo "Wrong bank name"
            exit 1
