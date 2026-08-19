@@ -4,7 +4,7 @@ echo "--- Running: make_root_files_wf ---"
 
 # Environment setup
 module use /scigroup/cvmfs/hallb/clas12/sw/modulefiles
-module load clas12
+module load clas12/5.7
 export ROOT=/u/scigroup/cvmfs/hallb/clas12/sw/almalinux9-gcc11/local/root/6.36.04/
 
 # Programs directories
