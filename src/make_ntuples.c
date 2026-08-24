@@ -51,6 +51,7 @@ static const char *USAGE_MESSAGE =
 " * -w workdir  : location where output root files are to be stored. Default\n"
 "                 is root_io.\n"
 " * -d datadir  : location where sampling fraction files are. Default is data.\n"
+" * -r run no   : run number, if want to override the one from the filename.\n"
 " * infile      : input ROOT file. Expected file format: <text>run_no.root`.\n\n"
 "    Generate ntuples relevant to SIDIS analysis based on the reconstructed\n"
 "    variables from CLAS12 data.\n";
@@ -940,7 +941,7 @@ static int handle_args(
 ) {
     // Handle arguments.
     int opt;
-    while ((opt = getopt(argc, argv, "-hDf:csn:w:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "-hDf:csn:w:d:r:")) != -1) {
         switch (opt) {
             case 'h':
                 rge_errno = RGEERR_USAGE;
@@ -985,6 +986,9 @@ static int handle_args(
                 *data_dir = static_cast<char *>(malloc(strlen(optarg) + 1));
                 strcpy(*data_dir, optarg);
                 break;
+            case 'r':
+                *run_no = atoi(optarg);
+                break;
             case 1:
                 *filename_in = static_cast<char *>(malloc(strlen(optarg) + 1));
                 strcpy(*filename_in, optarg);
@@ -1014,8 +1018,15 @@ static int handle_args(
         rge_errno = RGEERR_NOINPUTFILE;
         return 1;
     }
-    if (rge_handle_root_filename(*filename_in, run_no, energy_beam)) return 1;
-
+    if (*run_no == -1) {
+        if (rge_handle_root_filename(*filename_in, run_no, energy_beam)) return 1;
+    }
+    else {
+        int true_run_no = *run_no;
+        if (rge_handle_root_filename(*filename_in, run_no, energy_beam)) return 1;
+        *run_no = true_run_no;
+    }
+    
     return 0;
 }
 
@@ -1038,6 +1049,8 @@ int main(int argc, char **argv) {
             argc, argv, &filename_in, &work_dir, &data_dir, &debug, &fmt_switch,
             &fmt_switch_all, &fmt_cut, &save_MC, &n_events, &run_no, &energy_beam
     );
+
+    printf("run_no: %d\n", run_no);
 
     // Run.
     if (rge_errno == RGEERR_UNDEFINED && err == 0) {
