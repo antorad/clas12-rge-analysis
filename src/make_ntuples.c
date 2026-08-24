@@ -600,7 +600,6 @@ static int run(
             }
             
             // If fmt_switch is enabled and there are FMT layers, use FMT position; otherwise, use DC position.
-            rge_particle part_trigger;
             if (fmt_switch > 0 && has_fmt) {
                 // Get reconstructed particle from DC and from FMT.
                 part_trigger = rge_particle_init(
