@@ -27,6 +27,7 @@ while read -r RUN_NUMBER; do
         "/work/clas12/rg-e/antorad/clas12-rge-analysis/make_root_files_wf.sh -a -b $BANKS -r $RUN_NUMBER -t $TARGET"
 
 done < runs/runs_inb_${TARGET}_D2_1.txt
+#done < runs/runs_inb_test.txt
 
 # Run workflow
 swif2 run $WORKFLOW_NAME

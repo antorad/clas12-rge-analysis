@@ -29,7 +29,7 @@ while getopts ":af" opt; do
     f)
        F_FLAG_H2R="-f"
        F_FLAG_MNT="-f 2"
-       LABEL="fmt2"
+       LABEL="dc_fmt"
        ;;
     \?) echo "Invalid option: -$OPTARG" >&2;;
   esac
