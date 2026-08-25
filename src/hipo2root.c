@@ -69,7 +69,7 @@ std::vector<std::string> BANKVECTOR = {
 /** run() function of the program. Check USAGE_MESSAGE for details. */
 static int run(
         char *in_filename, char *work_dir, bool use_fmt, bool is_MC, int run_no,
-        lint nevents
+        lint nevents, char *file_flag
 ) {
     // Number of banks to read/write depends on type of analysis.
     if (use_fmt) BANKVECTOR.push_back(RGE_RECFTRACK);
@@ -92,7 +92,12 @@ static int run(
     TTree *out_tree = new TTree(RGE_TREENAMEDATA, RGE_TREENAMEDATA);
 
     char out_filename[PATH_MAX];
-    sprintf(out_filename, "%s/banks_%06d.root", work_dir, run_no);
+    if (file_flag != NULL) {
+        sprintf(out_filename, "%s/%s_banks.root", work_dir, file_flag);
+    }
+    else {
+        sprintf(out_filename, "%s/banks_%06d.root", work_dir, run_no);
+    }
     TFile *out_file = TFile::Open(out_filename, "RECREATE");
 
     // Open input file and get hipo schemas.
@@ -150,11 +155,11 @@ static int run(
  */
 static int handle_args(
         int argc, char **argv, char **in_filename, char **work_dir,
-        bool *use_fmt, bool *is_MC, int *run_no, lint *nevents
+        bool *use_fmt, bool *is_MC, int *run_no, lint *nevents, char **file_flag
 ) {
     // Handle arguments.
     int opt;
-    while ((opt = getopt(argc, argv, "-hfsn:w:")) != -1) {
+    while ((opt = getopt(argc, argv, "-hfsn:w:r:F:")) != -1) {
         switch (opt) {
             case 'h':
                 rge_errno = RGEERR_USAGE;
@@ -171,6 +176,13 @@ static int handle_args(
             case 'w':
                 *work_dir = static_cast<char *>(malloc(strlen(optarg) + 1));
                 strcpy(*work_dir, optarg);
+                break;
+            case 'r':
+                *run_no = atoi(optarg);
+                break;
+            case 'F':
+                *file_flag = static_cast<char *>(malloc(strlen(optarg) + 1));
+                strcpy(*file_flag, optarg);
                 break;
             case 1:
                 *in_filename = static_cast<char *>(malloc(strlen(optarg) + 1));
@@ -194,7 +206,14 @@ static int handle_args(
         return 1;
     }
 
-    if (rge_handle_hipo_filename(*in_filename, run_no)) return 1;
+    if (*run_no == -1) {
+        if (rge_handle_hipo_filename(*in_filename, run_no)) return 1;
+    }
+    else {
+        int true_run_no = *run_no;
+        if (rge_handle_hipo_filename(*in_filename, run_no)) return 1;
+        *run_no = true_run_no;
+    }
 
     return 0;
 }
@@ -208,14 +227,16 @@ int main(int argc, char **argv) {
     bool is_MC         = false;
     int  run_no        = -1;
     lint nevents       = -1;
+    char *file_flag    = NULL;
 
     handle_args(
-            argc, argv, &in_filename, &work_dir, &use_fmt, &is_MC, &run_no, &nevents
+            argc, argv, &in_filename, &work_dir, &use_fmt, &is_MC,
+            &run_no, &nevents, &file_flag
     );
 
     // Run.
     if (rge_errno == RGEERR_UNDEFINED) {
-        run(in_filename, work_dir, use_fmt, is_MC, run_no, nevents);
+        run(in_filename, work_dir, use_fmt, is_MC, run_no, nevents, file_flag);
     }
 
     // Free up memory.
