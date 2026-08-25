@@ -35,22 +35,20 @@
 #include "../lib/rge_progress.h"
 
 static const char *USAGE_MESSAGE =
-"Usage: make_ntuples [-hDfcn:w:d:] infile\n"
+"Usage: make_ntuples [-hDfcn:w:d:r:F:] infile\n"
 " * -h          : show this message and exit.\n"
 " * -D          : activate debug mode.\n"
 " * -f fmtswtch : switches between using DC-only tracking data (0), or DC+FMT \n"
 "                 tracking data only (1), or DC+FMT data and DC-only when no \n"
 "                 DC+FMT data is available (2), or all three previous cases (3).\n"
 "                 Default is 2.\n"
-// " * -f fmtlyrs  : define how many FMT layers should the track have hit.\n"
-// "                 Options are 0 (tracked only by DC), 2, and 3. If set to\n"
-// "                 something other than 0 and there is no FMT::Tracks bank in\n"
-// "                 the input file, the program will crash. Default is 0.\n"
 " * -c          : apply FMT geometry cut on data.\n"
 " * -n nevents  : number of events.\n"
 " * -w workdir  : location where output root files are to be stored. Default\n"
 "                 is root_io.\n"
 " * -d datadir  : location where sampling fraction files are. Default is data.\n"
+" * -r run no   : run number, if want to override the one from the filename.\n"
+" * -F file_flag: additional flag for the output file name.\n"
 " * infile      : input ROOT file. Expected file format: <text>run_no.root`.\n\n"
 "    Generate ntuples relevant to SIDIS analysis based on the reconstructed\n"
 "    variables from CLAS12 data.\n";
@@ -365,7 +363,7 @@ static int apply_fmtgeomtry_cut(rge_particle *p) {
 static int run(
         char *filename_in, char *work_dir, char *data_dir, bool debug,
         int fmt_switch, bool fmt_cut, bool save_MC, lint n_events, int run_no,
-        double energy_beam
+        double energy_beam, char *file_flag
 ) {
     //// Get sampling fraction.
     //char sampling_fraction_file[PATH_MAX];
@@ -900,16 +898,16 @@ static int run(
     // Create output file.
     char filename_out[PATH_MAX];
     if (fmt_switch == 0) {
-        sprintf(filename_out, "%s/ntuples_dc_%06d.root", work_dir, run_no);
+        sprintf(filename_out, "%s/ntuples_dc_%06d%s.root", work_dir, run_no, file_flag);
     }
     else if (fmt_switch == 1) {
         sprintf(
-                filename_out, "%s/ntuples_fmt_%06d.root", work_dir, run_no
+                filename_out, "%s/ntuples_fmt_%06d%s.root", work_dir, run_no, file_flag
         );
     }
     else if (fmt_switch == 2) {
         sprintf(
-                filename_out, "%s/ntuples_dc_fmt_%06d.root", work_dir, run_no
+                filename_out, "%s/ntuples_dc_fmt_%06d%s.root", work_dir, run_no, file_flag
         );
     }
     else {
@@ -936,11 +934,12 @@ static int run(
 static int handle_args(
         int argc, char **argv, char **filename_in, char **work_dir,
         char **data_dir, bool *debug, int *fmt_switch, bool *fmt_switch_all,
-        bool *fmt_cut, bool *save_MC, lint *n_events, int *run_no, double *energy_beam
+        bool *fmt_cut, bool *save_MC, lint *n_events, int *run_no,
+        double *energy_beam, char **file_flag
 ) {
     // Handle arguments.
     int opt;
-    while ((opt = getopt(argc, argv, "-hDf:csn:w:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "-hDf:csn:w:d:r:F:")) != -1) {
         switch (opt) {
             case 'h':
                 rge_errno = RGEERR_USAGE;
@@ -985,6 +984,13 @@ static int handle_args(
                 *data_dir = static_cast<char *>(malloc(strlen(optarg) + 1));
                 strcpy(*data_dir, optarg);
                 break;
+            case 'r':
+                *run_no = atoi(optarg);
+                break;
+            case 'F':
+                *file_flag = static_cast<char *>(malloc(strlen(optarg) + 1));
+                strcpy(*file_flag, optarg);
+                break;
             case 1:
                 *filename_in = static_cast<char *>(malloc(strlen(optarg) + 1));
                 strcpy(*filename_in, optarg);
@@ -1014,8 +1020,15 @@ static int handle_args(
         rge_errno = RGEERR_NOINPUTFILE;
         return 1;
     }
-    if (rge_handle_root_filename(*filename_in, run_no, energy_beam)) return 1;
-
+    if (*run_no == -1) {
+        if (rge_handle_root_filename(*filename_in, run_no, energy_beam)) return 1;
+    }
+    else {
+        int true_run_no = *run_no;
+        if (rge_handle_root_filename(*filename_in, run_no, energy_beam)) return 1;
+        *run_no = true_run_no;
+    }
+    
     return 0;
 }
 
@@ -1033,11 +1046,15 @@ int main(int argc, char **argv) {
     lint n_events       = -1;
     int run_no          = -1;
     double energy_beam  = -1;
+    char *file_flag     = "";
 
     int err = handle_args(
             argc, argv, &filename_in, &work_dir, &data_dir, &debug, &fmt_switch,
-            &fmt_switch_all, &fmt_cut, &save_MC, &n_events, &run_no, &energy_beam
+            &fmt_switch_all, &fmt_cut, &save_MC, &n_events, &run_no, &energy_beam,
+            &file_flag
     );
+
+    printf("run_no: %d\n", run_no);
 
     // Run.
     if (rge_errno == RGEERR_UNDEFINED && err == 0) {
@@ -1048,14 +1065,14 @@ int main(int argc, char **argv) {
                 fmt_switch = i;
                 run(
                         filename_in, work_dir, data_dir, debug, fmt_switch, fmt_cut,
-                        save_MC, n_events, run_no, energy_beam
+                        save_MC, n_events, run_no, energy_beam, file_flag
                 );
             }
         }
         else {
             run(
                     filename_in, work_dir, data_dir, debug, fmt_switch, fmt_cut,
-                    save_MC, n_events, run_no, energy_beam
+                    save_MC, n_events, run_no, energy_beam, file_flag
             );
         }
     }
@@ -1064,7 +1081,6 @@ int main(int argc, char **argv) {
     if (filename_in != NULL) free(filename_in);
     if (work_dir    != NULL) free(work_dir);
     if (data_dir    != NULL) free(data_dir);
-
     // Return errcode.
     return rge_print_usage(USAGE_MESSAGE);
 }

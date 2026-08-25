@@ -226,7 +226,7 @@ rge_particle rge_particle_init(
         return particle_init(
                 rge_get_double(particle, "charge", pindex),
                 rge_get_double(particle, "beta",   pindex),
-                rge_get_double(track,    "sector", pos),
+                rge_get_double(track,    "sector", pindex),
                 rge_get_double(particle, "vx", pindex),
                 rge_get_double(particle, "vy", pindex),
                 rge_get_double(particle, "vz", pindex),
@@ -249,14 +249,14 @@ rge_particle rge_particle_init(
         return particle_init(
                 rge_get_double(particle, "charge", pindex),
                 rge_get_double(particle, "beta",   pindex),
-                rge_get_double(fmttrack, "sector", pos),
+                rge_get_double(track,    "sector", pindex),
                 rge_get_double(fmttrack, "vx", pos),
                 rge_get_double(fmttrack, "vy", pos),
                 rge_get_double(fmttrack, "vz", pos),
-                rge_get_double(fmttrack, "vt", pos),
-                rge_get_double(fmttrack, "px",   pos),
-                rge_get_double(fmttrack, "py",   pos),
-                rge_get_double(fmttrack, "pz",   pos)
+                rge_get_double(particle, "vt", pindex),
+                rge_get_double(fmttrack, "px", pos),
+                rge_get_double(fmttrack, "py", pos),
+                rge_get_double(fmttrack, "pz", pos)
         );
             
     }
