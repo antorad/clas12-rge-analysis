@@ -103,7 +103,7 @@ static void get_time_path(
         // Filter out incorrect pindex and hits not from FTOF.
         if (
                 rge_get_uint(scintillator, "pindex", i)   != pindex ||
-                detector != FTOF_ID || detector != CTOF_ID
+                (detector != FTOF_ID && detector != CTOF_ID)
         ) {
             continue;
         }
