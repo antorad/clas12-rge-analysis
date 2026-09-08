@@ -54,6 +54,7 @@ static const char *USAGE_MESSAGE =
 "    variables from CLAS12 data.\n";
 
 /** Detector IDs from CLAS12 reconstruction. */
+static const uint CTOF_ID = 4;
 static const uint FTOF_ID = 12;
 static const uint HTCC_ID = 15;
 static const uint LTCC_ID = 16;
@@ -98,10 +99,11 @@ static void get_time_path(
 
     // Find TOF and path from scintillator.
     for (uint i = 0; i < scintillator->nrows; ++i) {
+        uint detector  = rge_get_uint(scintillator, "detector", i);
         // Filter out incorrect pindex and hits not from FTOF.
         if (
                 rge_get_uint(scintillator, "pindex", i)   != pindex ||
-                rge_get_uint(scintillator, "detector", i) != FTOF_ID
+                detector != FTOF_ID || detector != CTOF_ID
         ) {
             continue;
         }
@@ -109,6 +111,12 @@ static void get_time_path(
         uint layer  = rge_get_uint(scintillator, "layer", i);
         double time = rge_get_double(scintillator, "time", i);
         double path = rge_get_double(scintillator, "path", i);
+
+        if (detector == CTOF_ID) {
+            *time_tof = time;
+            *path_tof = path;
+            break; // If part is from CD, the rest is not applicable.
+        }
 
         // Check FTOF 1B (most precise FTOF layer).
         if (layer == FTOF1B_LYR) {
