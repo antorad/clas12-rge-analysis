@@ -270,12 +270,19 @@ static int get_pcal_distance(
  * @return            : error code. 0 if successful, 1 otherwise.
  */
 static int get_dc_edge(
-        rge_hipobank *trajectory, uint pindex, double *DC_R1_edge,
-        double *DC_R2_edge, double *DC_R3_edge
+        rge_hipobank *trajectory, uint pindex, double *DC_R1_edge, double *DC_R2_edge,
+        double *DC_R3_edge, double *DC_R1_x, double *DC_R1_y, double *DC_R2_x,
+        double *DC_R2_y, double *DC_R3_x, double *DC_R3_y
 ) {
     *DC_R1_edge = -999;
     *DC_R2_edge = -999;
     *DC_R3_edge = -999;
+    *DC_R1_x = -999;
+    *DC_R2_x = -999;
+    *DC_R3_x = -999;
+    *DC_R1_y = -999;
+    *DC_R2_y = -999;
+    *DC_R3_y = -999;
 
     for (uint i = 0; i < trajectory->nrows; ++i) {
         if (rge_get_uint(trajectory,"pindex",i) != pindex ||
@@ -283,9 +290,21 @@ static int get_dc_edge(
 
         int layer = rge_get_int(trajectory, "layer",  i);
 
-        if      (layer == DC_R1_LYR) *DC_R1_edge = rge_get_double(trajectory, "edge", i);
-        else if (layer == DC_R2_LYR) *DC_R2_edge = rge_get_double(trajectory, "edge", i);
-        else if (layer == DC_R3_LYR) *DC_R3_edge = rge_get_double(trajectory, "edge", i);
+        if      (layer == DC_R1_LYR){
+            *DC_R1_edge = rge_get_double(trajectory, "edge", i);
+            *DC_R1_x = rge_get_double(trajectory, "x", i);
+            *DC_R1_y = rge_get_double(trajectory, "y", i);
+        }
+        else if (layer == DC_R2_LYR){
+            *DC_R2_edge = rge_get_double(trajectory, "edge", i);
+            *DC_R2_x = rge_get_double(trajectory, "x", i);
+            *DC_R2_y = rge_get_double(trajectory, "y", i);
+        }
+        else if (layer == DC_R3_LYR){
+            *DC_R3_edge = rge_get_double(trajectory, "edge", i);
+            *DC_R3_x = rge_get_double(trajectory, "x", i);
+            *DC_R3_y = rge_get_double(trajectory, "y", i);
+        }
         else {
             return 1;
         }
@@ -642,9 +661,9 @@ static int run(
             )) return 1;
 
             //Get DC edge distances for each region
-            double DC_R1_edge, DC_R2_edge, DC_R3_edge;
+            double DC_R1_edge, DC_R2_edge, DC_R3_edge, DC_R1_x, DC_R1_y, DC_R2_x, DC_R2_y, DC_R3_x, DC_R3_y;
             if (get_dc_edge(
-                    &btraj, pindex, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge
+                    &btraj, pindex, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge,  &DC_R1_x, &DC_R1_y, &DC_R2_x, &DC_R2_y, &DC_R3_x, &DC_R3_y
             )) return 1;
 
             // Get number of photoelectrons from Cherenkov counters.
@@ -678,7 +697,8 @@ static int run(
                     arr, part_trigger, part_trigger, run_no, event, start_time,
                     status, energy_beam, chi2, ndf, fmt_nlayers, energy_PCAL, energy_ECIN,
                     energy_ECOU, time_tof, path_tof, time_cal, path_cal,
-                    nphe_LTCC, nphe_HTCC, PCAL_U, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
+                    nphe_LTCC, nphe_HTCC, PCAL_U, PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge,
+                    DC_R1_x, DC_R1_y, DC_R2_x, DC_R2_y, DC_R3_x, DC_R3_y
             )) return 1;
 
             tree_out->Fill(arr);
@@ -773,7 +793,7 @@ static int run(
             if (rge_fill_ntuples_arr(
                     arr, photon_part, part_trigger, run_no, event, start_time, status,
                     energy_beam, -100.0, -100.0, fmt_nlayers, energy_PCAL, energy_ECIN, energy_ECOU, time_tof,
-                    path_tof, time_cal, path_cal, 0, 0, PCAL_U, PCAL_V, PCAL_W, -999, -999, -999 // No Cherenkov para fotones
+                    path_tof, time_cal, path_cal, 0, 0, PCAL_U, PCAL_V, PCAL_W, -999, -999, -999,-999, -999, -999,-999, -999, -999 // No Cherenkov para fotones
             )) continue;
 
             tree_out->Fill(arr);
@@ -887,7 +907,7 @@ static int run(
                     arr, part, part_trigger, run_no, event, start_time, status,
                     energy_beam, chi2, ndf, fmt_nlayers, energy_PCAL, energy_ECIN, energy_ECOU,
                     time_tof, path_tof, time_cal, path_cal, nphe_LTCC, nphe_HTCC, PCAL_U,
-                    PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge
+                    PCAL_V, PCAL_W, DC_R1_edge, DC_R2_edge, DC_R3_edge, DC_R1_x, DC_R1_y, DC_R2_x, DC_R2_y, DC_R3_x, DC_R3_y
             )) return 1;
 
             tree_out->Fill(arr);

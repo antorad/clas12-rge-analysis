@@ -247,7 +247,8 @@ int rge_fill_ntuples_arr(
         double pcal_energy, double ecin_E, double ecou_E,
         double time_tof, double path_tof, double time_cal, double path_cal,
         int nphe_ltcc, int nphe_htcc, double PCAL_U, double PCAL_V, double PCAL_W,
-        double DC_R1_edge, double DC_R2_edge, double DC_R3_edge
+        double DC_R1_edge, double DC_R2_edge, double DC_R3_edge,DC_R1_x,  double DC_R1_y,
+        double DC_R2_x, double DC_R2_y, double DC_R3_x, double DC_R3_y
 );
 
 /**

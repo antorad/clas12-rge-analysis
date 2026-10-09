@@ -319,7 +319,8 @@ int rge_fill_ntuples_arr(
         double pcal_energy, double ecin_E, double ecou_E,
         double time_tof, double path_tof, double time_cal, double path_cal,
         int nphe_ltcc, int nphe_htcc, double PCAL_U, double PCAL_V, double PCAL_W,
-        double DC_R1_edge, double DC_R2_edge, double DC_R3_edge
+        double DC_R1_edge, double DC_R2_edge, double DC_R3_edge, double DC_R3_edge,DC_R1_x,  double DC_R1_y,
+        double DC_R2_x, double DC_R2_y, double DC_R3_x, double DC_R3_y
 ) {
     // Metadata.
     arr[RGE_RUNNO.addr]     = static_cast<Float_t>(run_no);
@@ -355,6 +356,12 @@ int rge_fill_ntuples_arr(
     arr[RGE_DCR1EDGE.addr] = DC_R1_edge;
     arr[RGE_DCR2EDGE.addr] = DC_R2_edge;
     arr[RGE_DCR3EDGE.addr] = DC_R3_edge;
+    arr[RGE_DCR1X.addr] = DC_R1_x;
+    arr[RGE_DCR2X.addr] = DC_R2_x;
+    arr[RGE_DCR3X.addr] = DC_R3_x;
+    arr[RGE_DCR1Y.addr] = DC_R1_y;
+    arr[RGE_DCR2Y.addr] = DC_R2_y;
+    arr[RGE_DCR3Y.addr] = DC_R3_y;
 
     // Calorimeter.
     arr[RGE_PCALE.addr] = pcal_energy;
