@@ -873,9 +873,9 @@ static int run(
             )) return 1;
 
             //Get DC edge distances for each region
-            double DC_R1_edge, DC_R2_edge, DC_R3_edge;
+            double DC_R1_edge, DC_R2_edge, DC_R3_edge, DC_R1_x, DC_R1_y, DC_R2_x, DC_R2_y, DC_R3_x, DC_R3_y;
             if (get_dc_edge(
-                    &btraj, pos, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge
+                    &btraj, pos, &DC_R1_edge, &DC_R2_edge, &DC_R3_edge, &DC_R1_x, &DC_R1_y, &DC_R2_x, &DC_R2_y, &DC_R3_x, &DC_R3_y
             )) return 1;
 
             // Get Cherenkov counters data.
