@@ -104,8 +104,8 @@ static std::map<
         {"index",    entry_init("REC::Traj::index",    SHORT)},
         {"detector", entry_init("REC::Traj::detector", BYTE)},
         {"layer",    entry_init("REC::Traj::layer",    BYTE)},
-        {"x",        entry_init("REC::Traj::x",        FLOAT)}
-        {"y",        entry_init("REC::Traj::y",        FLOAT)}
+        {"x",        entry_init("REC::Traj::x",        FLOAT)},
+        {"y",        entry_init("REC::Traj::y",        FLOAT)},
         {"edge",     entry_init("REC::Traj::edge",     FLOAT)}
     }},
     {RGE_RECFTRACK, {
